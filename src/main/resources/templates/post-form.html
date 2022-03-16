@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="US-ASCII" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <title>Contact Us</title>
+</head>
+<body>
+<div class="form-container blog-post-form-container">
+    <div class="form-header">New/Edit Post</div>
+
+    <form action="post" method="post" id="blog-post-form" th:object="${post}">
+        <label for="title" class="input-label">Title</label><br />
+        <input type="text" id="title" class="input-field" name="title" th:value="${post.title}" required />
+        <br />
+        <br />
+
+        <label for="tags" class="input-label">Tags</label>
+        <input type="tags" id="tags" class="input-field" name="text" required />
+        <span class="example-txt">example: #Java</span>
+        <br />
+        <br />
+
+        <label for="content" class="input-label">Content</label> <br />
+        <textarea
+                name="content"
+                id="content"
+                class="input-field"
+                rows="10"
+                form="blog-post-form"
+                th:text="${post.content}"
+        ></textarea>
+        <br />
+        <br />
+
+        <input class="btn" type="submit" value="SUBMIT" />
+    </form>
+</div>
+</body>
+</html>

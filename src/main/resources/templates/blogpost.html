@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+<body>
+<header class="nav-container">
+    <nav class="nav-bar">
+        <a href="/user/login" class="nav-item">Login</a>
+        <a href="/" class="nav-item left-float-item">My Blog Application</a>
+    </nav>
+</header>
+
+<section class="form-container blog-post-container">
+    <div class="form-header">
+        <h1  th:text="${post.title}"></h1>
+        <p>
+            <span th:text="${post.author}"></span>,
+            <span th:text="${post.publishedAt}"></span>
+        </p>
+    </div>
+    <p id="content" th:text="${post.content}">
+    </p>
+</section>
+</body>
+</html>

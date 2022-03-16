@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <title>Document</title>
+</head>
+<body id="dash-body">
+
+<header class="nav-bar">
+    <div>
+        <h1 class="nav-logo">My Blog Application</h1>
+    </div>
+    <div class="options">
+        <a class="nav-item" href="signin">Login</a>
+
+        <form>
+            <input
+                    class="input-field search-field"
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Search"
+                    required
+            />
+            <input type="submit" class="nav-item" value="Search" />
+        </form>
+
+        <a class="nav-item" href="showpostform">New Post</a>
+
+        <label class="white-label" for="sort">Sort</label>
+        <select id="sort" name="sort">
+            <option value="name">By Name</option>
+            <option value="date">By Date</option>
+        </select>
+
+        <label class="white-label" for="filter">filter</label>
+        <select id="filter" name="filter">
+            <option value="name">by name</option>
+        </select>
+    </div>
+</header>
+<div class="nav-bar"></div>
+
+<section th:each="post : ${posts}">
+        <article class="blog-post-item">
+            <h1 th:text="${post.title}"></h1>
+            <h3><span th:text="${post.author}"></span>,<span th:text="${post.publishedAt}"></span></h3>
+            <br /><br />
+            <p th:text="${post.content}"></p>
+            <a class="" th:href="@{editpost(id=${post.id})}">Edit</a>
+            <a class="" th:href="@{post(id=${post.id})}">view</a>
+        </article>
+</section>
+
+<footer>
+    <nav class="nav-bar">
+        <a class="nav-item" href="#">Next &gt;</a>
+        <a class="nav-item left-float-item" href="#">&lt; Previous</a>
+    </nav>
+</footer>
+</body>
+</html>

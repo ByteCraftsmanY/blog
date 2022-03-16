@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="US-ASCII" />
+    <title>Login</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+<body>
+<div class="form-container sign-in-form-container">
+    <div class="form-header">Login</div>
+    <form action="redirect/feed" method="post">
+        <label for="id" class="input-label">User Name</label>
+        <input type="text" id="id" name="id" class="input-field" required />
+        <br />
+        <br />
+
+        <label for="password" class="input-label">Password</label>
+        <input
+                type="password"
+                id="password"
+                name="password"
+                class="input-field"
+                required
+        />
+        <br /><br />
+
+<!--        <div class="msg error-msg">${responseMsg}</div>-->
+
+        <input class="btn" type="submit" value="LOGIN" />
+        <p class="msg auth-msg">
+            Don't have an account? <a href="signup">Create one</a>
+        </p>
+    </form>
+</div>
+</body>
+</html>

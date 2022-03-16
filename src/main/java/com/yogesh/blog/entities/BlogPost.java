@@ -1,19 +1,45 @@
 package com.yogesh.blog.entities;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
-public class Post {
+@Entity
+@Table(name = "posts")
+public class BlogPost {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "excerpt")
     private String excerpt;
+
+    @Column(name = "content")
     private String content;
+
+    @Column(name = "author")
     private String author;
+
+    @Column(name = "published_at")
     private LocalDateTime publishedAt;
+
+    @Column(name = "is_published")
     private Boolean isPublished;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Post(String title, String excerpt, String content, String author) {
+    public BlogPost() {
+
+    }
+
+    public BlogPost(String title, String excerpt, String content, String author) {
         this.title = title;
         this.excerpt = excerpt;
         this.content = content;
@@ -94,16 +120,6 @@ public class Post {
 
     @Override
     public String toString() {
-        return "Post{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", excerpt='" + excerpt + '\'' +
-                ", content='" + content + '\'' +
-                ", author='" + author + '\'' +
-                ", publishedAt=" + publishedAt +
-                ", isPublished=" + isPublished +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        return "Post{" + "id=" + id + ", title='" + title + '\'' + ", excerpt='" + excerpt + '\'' + ", content='" + content + '\'' + ", author='" + author + '\'' + ", publishedAt=" + publishedAt + ", isPublished=" + isPublished + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + '}';
     }
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="US-ASCII" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <title>Sign in</title>
+</head>
+<body>
+<div class="form-container signup-form-container">
+    <!--    <div class="msg ${isRequestSaved  ? 'success-msg' : 'error-msg'}">${responseMsg}</div>-->
+    <div class="form-header">Create Account</div>
+
+    <form action="user" id="signup-form" method="post" th:object="${user}">
+        <label class="input-label" for="name">Name</label><br />
+        <input class="input-field" id="name" name="name" required type="text" />
+        <br />
+        <br />
+
+        <label class="input-label" for="email">E-mail</label>
+        <input
+                class="input-field"
+                id="email"
+                name="email"
+                required
+                type="email"
+        />
+        <span class="example-txt">example@example.com</span>
+        <br />
+        <br />
+
+        <label for="password" class="input-label">Password</label>
+        <input
+                type="password"
+                id="password"
+                name="password"
+                class="input-field"
+                required
+        />
+        <br /><br />
+        <label for="confirm-password" class="input-label"
+        >Confirm Password</label
+        >
+        <input
+                type="password"
+                id="confirm-password"
+                name="confirm-password"
+                class="input-field"
+                required
+        />
+        <br /><br />
+        <input class="btn" type="submit" value="SUBMIT" />
+    </form>
+    <br />
+    <p class="msg auth-msg">Have account? <a href="signin">Login</a></p>
+</div>
+</body>
+</html>
