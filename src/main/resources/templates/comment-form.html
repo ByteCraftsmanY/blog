@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="US-ASCII" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <title>Comment form</title>
+</head>
+<body>
+<div class="form-container blog-post-form-container">
+    <div class="form-header">Edit Comment</div>
+
+    <form action="#" th:action="@{/save-comment}" method="post" th:object="${comment}">
+        <input type="hidden" th:field="*{id}">
+        <input type="hidden" th:field="*{name}">
+        <input type="hidden" th:field="*{email}">
+        <input type="hidden" th:field="*{post}">
+        <input type="hidden" th:field="*{createdAt}">
+        <input type="hidden" th:field="*{updatedAt}">
+
+        <label for="comment" class="input-label">Title</label><br />
+        <input type="text" id="comment" class="input-field" name="comment" th:field="*{commentDescription}" required />
+        <br />
+        <br />
+
+        <input class="btn" type="submit" value="SUBMIT" />
+    </form>
+</div>
+</body>
+</html>

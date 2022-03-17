@@ -15,16 +15,16 @@ import java.util.Optional;
 
 @Controller
 public class PostController {
-    private final PostService blogPostService;
+    private final PostService postService;
 
     @Autowired
-    public PostController(PostService blogPostService) {
-        this.blogPostService = blogPostService;
+    public PostController(PostService postService) {
+        this.postService = postService;
     }
 
     @GetMapping("feed")
     String getPosts(Model model) {
-        List<Post> posts = blogPostService.getBlogPostList();
+        List<Post> posts = postService.getBlogPostList();
         model.addAttribute("posts", posts);
         return "feed";
     }
@@ -32,7 +32,7 @@ public class PostController {
     @GetMapping("post")
     String fetchPost(@RequestParam("id") String id, Model model) {
         Comment comment = new Comment();
-        Optional<Post> blogPost = blogPostService.getPost(Integer.parseInt(id));
+        Optional<Post> blogPost = postService.getPost(Integer.parseInt(id));
         Post post = blogPost.orElseGet(Post::new);
         comment.setPost(post);
         model.addAttribute("post", post);
@@ -42,14 +42,14 @@ public class PostController {
 
     @PostMapping("post")
     String savePost(@ModelAttribute("post") Post blogPost) {
-        blogPostService.addPost(blogPost);
+        postService.addPost(blogPost);
         return "redirect:/feed";
     }
 
     @PatchMapping("post")
     String updatePost(@ModelAttribute("post") Post blogPost) {
         blogPost.setUpdatedAt(LocalDateTime.now());
-        blogPostService.addPost(blogPost);
+        postService.addPost(blogPost);
         return "redirect:/feed";
     }
 
@@ -60,7 +60,7 @@ public class PostController {
 
     @GetMapping("edit-post")
     String fetchPostForUpdate(@RequestParam("id") String id, Model model) {
-        Optional<Post> post = blogPostService.getPost(Integer.parseInt(id));
+        Optional<Post> post = postService.getPost(Integer.parseInt(id));
         model.addAttribute("post", post.orElseGet(Post::new));
         return "post-form";
     }

@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Blog</title>
-    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
 <header class="nav-container">
     <nav class="nav-bar">
-        <a href="#" th:href="@{/user/login}" class="nav-item">Login</a>
-        <a href="#" th:href="@{/feed}" class="nav-item left-float-item">My Blog Application</a>
+        <a class="nav-item" href="#" th:href="@{/user/login}">Login</a>
+        <a class="nav-item left-float-item" href="#" th:href="@{/feed}">My Blog Application</a>
     </nav>
 </header>
 
 <section class="form-container blog-post-container">
     <div class="form-header">
-        <h1  th:text="${post.title}"></h1>
+        <h1 th:text="${post.title}"></h1>
         <p>
             <span th:text="${post.author}"></span>,
             <span th:text="${post.publishedAt}"></span>
@@ -26,17 +26,17 @@
     <p id="content" th:text="${post.content}">
     </p>
 
-    <form action="#" method="post"   th:action="@{/comment}" th:object="${comment}">
-        <input type="hidden" th:field="*{post}">
+    <form action="#" method="post" th:action="@{/save-comment}" th:object="${comment}">
+        <input th:field="*{post}" type="hidden">
 
         <label for="comment-description">Comment</label>
-        <input id="comment-description" type="text" th:field="*{commentDescription}"><br>
+        <input id="comment-description" th:field="*{commentDescription}" type="text"><br>
 
         <label for="name">Name</label>
-        <input id="name" type="text" th:field="*{name}"><br>
+        <input id="name" th:field="*{name}" type="text"><br>
 
         <label for="email">Email</label>
-        <input id="email" type="text" th:field="*{email}"><br>
+        <input id="email" th:field="*{email}" type="text"><br>
 
         <input type="submit">
     </form>
@@ -55,6 +55,8 @@
             <th>post id</th>
             <th>created at</th>
             <th>updated at</th>
+            <th>delete</th>
+            <th>update</th>
         </tr>
         <tr th:each="comment : ${post.comments}">
             <td th:text="${comment.id}"></td>
@@ -64,6 +66,14 @@
             <td th:text="${comment.post.id}"></td>
             <td th:text="${comment.createdAt}"></td>
             <td th:text="${comment.updatedAt}"></td>
+            <td>
+                <a th:href="@{delete-comment(id=${comment.id},post-id=${post.id})}">Delete</a>
+            </td>
+
+            <td>
+                <a th:href="@{update-comment(id=${comment.id})}">update</a>
+            </td>
+
         </tr>
         </thead>
     </table>

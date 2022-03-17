@@ -24,10 +24,10 @@ public class Post {
     @Column(name = "author")
     private String author;
 
-    @Column(name = "published_at",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
-    @Column(name = "is_published", columnDefinition = "boolean default true")
+    @Column(name = "is_published")
     private Boolean isPublished;
 
     @Column(name = "created_at")

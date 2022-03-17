@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -23,7 +22,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @GetMapping("comment")
+    @GetMapping("fetch-comment")
     public String getComment(@RequestParam("id") String id) {
         Optional<Comment> comment = commentService.fetchComment(Integer.parseInt(id));
         if(comment.isPresent())
@@ -31,11 +30,28 @@ public class CommentController {
         return "feed";
     }
 
-    @PostMapping("comment")
+    @PostMapping("save-comment")
     public String saveComment(@ModelAttribute("comment") Comment comment){
-        comment.setCreatedAt(LocalDateTime.now());
+        if(comment.getCreatedAt()!=null) {
+            comment.setCreatedAt(LocalDateTime.now());
+        }else{
+            comment.setUpdatedAt(LocalDateTime.now());
+        }
         commentService.saveComment(comment);
         return "redirect:/post?id="+comment.getPost().getId();
+    }
+
+    @GetMapping("delete-comment")
+    public String deleteComment(@RequestParam("id") String id,@RequestParam("post-id") String postId){
+        commentService.deleteComment(Integer.parseInt(id));
+        return "redirect:/post?id="+postId;
+    }
+
+    @GetMapping("update-comment")
+    public String updateComment(@RequestParam("id") Integer id,Model model){
+        Comment comment = commentService.fetchComment(id).get();
+        model.addAttribute("comment",comment);
+        return "comment-form";
     }
 
 }
