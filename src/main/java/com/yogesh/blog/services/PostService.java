@@ -28,4 +28,8 @@ public class PostService {
     public List<Post> getBlogPostList(){
         return postRepository.findAll();
     }
+
+    public void deletePost(Integer id) {
+        postRepository.deleteById(id);
+    }
 }

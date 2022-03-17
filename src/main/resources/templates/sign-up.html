@@ -10,7 +10,7 @@
     <!--    <div class="msg ${isRequestSaved  ? 'success-msg' : 'error-msg'}">${responseMsg}</div>-->
     <div class="form-header">Create Account</div>
 
-    <form action="#" th:action="@{user}" id="signup-form" method="post" th:object="${user}">
+    <form action="#" th:action="@{save-user}" id="signup-form" method="post" th:object="${user}">
         <label class="input-label" for="name">Name</label><br />
         <input class="input-field" id="name" name="name" required type="text" />
         <br />

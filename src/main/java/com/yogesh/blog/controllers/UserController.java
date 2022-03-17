@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("user")
+@RequestMapping
 public class UserController {
     private final UserService userService;
 
@@ -21,17 +21,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping
-    String getUser(Model model){
-        User user = userService.getUser(1);
-        model.addAttribute("user",user);
-        return "feed";
-    }
-
-    @PostMapping
+    @PostMapping("save-user")
     String saveUser(@ModelAttribute("user") User user){
         userService.addUser(user);
-        return "feed";
+        return "redirect:/sign-in";
     }
 
     @GetMapping("sign-in")

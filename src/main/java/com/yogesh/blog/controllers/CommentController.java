@@ -32,19 +32,19 @@ public class CommentController {
 
     @PostMapping("save-comment")
     public String saveComment(@ModelAttribute("comment") Comment comment){
-        if(comment.getCreatedAt()!=null) {
+        if(comment.getCreatedAt()==null) {
             comment.setCreatedAt(LocalDateTime.now());
         }else{
             comment.setUpdatedAt(LocalDateTime.now());
         }
         commentService.saveComment(comment);
-        return "redirect:/post?id="+comment.getPost().getId();
+        return "redirect:/show-post?id="+comment.getPost().getId();
     }
 
     @GetMapping("delete-comment")
     public String deleteComment(@RequestParam("id") String id,@RequestParam("post-id") String postId){
         commentService.deleteComment(Integer.parseInt(id));
-        return "redirect:/post?id="+postId;
+        return "redirect:/show-post?id="+postId;
     }
 
     @GetMapping("update-comment")
@@ -53,5 +53,4 @@ public class CommentController {
         model.addAttribute("comment",comment);
         return "comment-form";
     }
-
 }

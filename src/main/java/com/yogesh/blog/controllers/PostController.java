@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +28,7 @@ public class PostController {
         return "feed";
     }
 
-    @GetMapping("post")
+    @GetMapping("show-post")
     String fetchPost(@RequestParam("id") String id, Model model) {
         Comment comment = new Comment();
         Optional<Post> blogPost = postService.getPost(Integer.parseInt(id));
@@ -40,21 +39,15 @@ public class PostController {
         return "post";
     }
 
-    @PostMapping("post")
+    @PostMapping("save-post")
     String savePost(@ModelAttribute("post") Post blogPost) {
         postService.addPost(blogPost);
         return "redirect:/feed";
     }
 
-    @PatchMapping("post")
-    String updatePost(@ModelAttribute("post") Post blogPost) {
-        blogPost.setUpdatedAt(LocalDateTime.now());
-        postService.addPost(blogPost);
-        return "redirect:/feed";
-    }
-
-    @DeleteMapping("post")
-    String deletePost() {
+    @GetMapping("delete-post")
+    String deletePost(@RequestParam("id") Integer id) {
+        postService.deletePost(id);
         return "redirect:/feed";
     }
 
@@ -65,7 +58,7 @@ public class PostController {
         return "post-form";
     }
 
-    @GetMapping("show-post-form")
+    @GetMapping("new-post")
     String showPostForm(Model model) {
         model.addAttribute("post", new Post());
         return "post-form";

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link th:href="@{/css/style.css}" rel="stylesheet" />
-    <title>Document</title>
+    <title>Blog Home</title>
 </head>
 <body id="dash-body">
 
@@ -14,7 +14,7 @@
         <h1 class="nav-logo">My Blog Application</h1>
     </div>
     <div class="options">
-        <a class="nav-item" href="#" th:href="@{sign-in}">Login</a>
+        <a class="nav-item" href="#" th:href="@{/sign-in}">Login</a>
 
         <form>
             <label for="search"></label>
@@ -29,7 +29,7 @@
             <input type="submit" class="nav-item" value="Search" />
         </form>
 
-        <a class="nav-item" th:href="@{show-post-form}" href="#">New Post</a>
+        <a class="nav-item" th:href="@{new-post}" href="#">New Post</a>
 
         <label class="white-label" for="sort">Sort</label>
         <select id="sort" name="sort">
@@ -52,7 +52,8 @@
             <br /><br />
             <p th:text="${post.content}"></p>
             <a class="" th:href="@{edit-post(id=${post.id})}">Edit</a>
-            <a class="" th:href="@{post(id=${post.id})}">view</a>
+            <a class="" th:href="@{show-post(id=${post.id})}">view</a>
+            <a class="" th:href="@{delete-post(id=${post.id})}">delete</a>
         </article>
 </section>
 
