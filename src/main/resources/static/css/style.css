@@ -42,7 +42,7 @@ body {
     text-align: center;
 }
 
-.form-header > h1{
+.form-header > h1 {
     font-size: 1.5em;
     margin: 0;
 }
@@ -134,12 +134,12 @@ body {
     font-size: 1.1em;
 }
 
-.blog-post-item > h1{
+.blog-post-item > h1 {
     font-size: 2em;
     margin: 0.5em 0;
 }
 
-.blog-post-item > h3{
+.blog-post-item > h3 {
     font-size: 1.1em;
     margin: 0;
 }
@@ -206,7 +206,11 @@ footer {
     width: 40%;
 }
 
-.blog-link{
+.blog-link {
     text-decoration: none;
     color: black;
+}
+
+table, th, td {
+    border: 1px solid black;
 }

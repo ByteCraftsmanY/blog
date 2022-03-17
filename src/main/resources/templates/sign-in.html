@@ -8,7 +8,7 @@
 <body>
 <div class="form-container sign-in-form-container">
     <div class="form-header">Login</div>
-    <form action="redirect/feed" method="post">
+    <form action="#" th:action="@{feed}" method="post">
         <label for="id" class="input-label">User Name</label>
         <input type="text" id="id" name="id" class="input-field" required />
         <br />
@@ -28,7 +28,7 @@
 
         <input class="btn" type="submit" value="LOGIN" />
         <p class="msg auth-msg">
-            Don't have an account? <a href="signup">Create one</a>
+            Don't have an account? <a th:href="@{sign-up}">Create one</a>
         </p>
     </form>
 </div>

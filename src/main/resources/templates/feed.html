@@ -14,9 +14,10 @@
         <h1 class="nav-logo">My Blog Application</h1>
     </div>
     <div class="options">
-        <a class="nav-item" href="signin">Login</a>
+        <a class="nav-item" href="#" th:href="@{sign-in}">Login</a>
 
         <form>
+            <label for="search"></label>
             <input
                     class="input-field search-field"
                     type="text"
@@ -28,7 +29,7 @@
             <input type="submit" class="nav-item" value="Search" />
         </form>
 
-        <a class="nav-item" href="showpostform">New Post</a>
+        <a class="nav-item" th:href="@{show-post-form}" href="#">New Post</a>
 
         <label class="white-label" for="sort">Sort</label>
         <select id="sort" name="sort">
@@ -50,7 +51,7 @@
             <h3><span th:text="${post.author}"></span>,<span th:text="${post.publishedAt}"></span></h3>
             <br /><br />
             <p th:text="${post.content}"></p>
-            <a class="" th:href="@{editpost(id=${post.id})}">Edit</a>
+            <a class="" th:href="@{edit-post(id=${post.id})}">Edit</a>
             <a class="" th:href="@{post(id=${post.id})}">view</a>
         </article>
 </section>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+<body>
+<header class="nav-container">
+    <nav class="nav-bar">
+        <a href="#" th:href="@{/user/login}" class="nav-item">Login</a>
+        <a href="#" th:href="@{/feed}" class="nav-item left-float-item">My Blog Application</a>
+    </nav>
+</header>
+
+<section class="form-container blog-post-container">
+    <div class="form-header">
+        <h1  th:text="${post.title}"></h1>
+        <p>
+            <span th:text="${post.author}"></span>,
+            <span th:text="${post.publishedAt}"></span>
+        </p>
+    </div>
+    <p id="content" th:text="${post.content}">
+    </p>
+
+    <form action="#" method="post"   th:action="@{/comment}" th:object="${comment}">
+        <input type="hidden" th:field="*{post}">
+
+        <label for="comment-description">Comment</label>
+        <input id="comment-description" type="text" th:field="*{commentDescription}"><br>
+
+        <label for="name">Name</label>
+        <input id="name" type="text" th:field="*{name}"><br>
+
+        <label for="email">Email</label>
+        <input id="email" type="text" th:field="*{email}"><br>
+
+        <input type="submit">
+    </form>
+
+    <br>
+
+    <br><br>
+
+    <table style="width:100%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>email</th>
+            <th>comment</th>
+            <th>post id</th>
+            <th>created at</th>
+            <th>updated at</th>
+        </tr>
+        <tr th:each="comment : ${post.comments}">
+            <td th:text="${comment.id}"></td>
+            <td th:text="${comment.name}"></td>
+            <td th:text="${comment.email}"></td>
+            <td th:text="${comment.commentDescription}"></td>
+            <td th:text="${comment.post.id}"></td>
+            <td th:text="${comment.createdAt}"></td>
+            <td th:text="${comment.updatedAt}"></td>
+        </tr>
+        </thead>
+    </table>
+
+</section>
+</body>
+</html>

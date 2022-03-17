@@ -2,10 +2,11 @@ package com.yogesh.blog.entities;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
-public class BlogPost {
+public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -23,10 +24,10 @@ public class BlogPost {
     @Column(name = "author")
     private String author;
 
-    @Column(name = "published_at")
+    @Column(name = "published_at",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime publishedAt;
 
-    @Column(name = "is_published")
+    @Column(name = "is_published", columnDefinition = "boolean default true")
     private Boolean isPublished;
 
     @Column(name = "created_at")
@@ -35,11 +36,22 @@ public class BlogPost {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public BlogPost() {
+    @OneToMany(mappedBy = "post")
+    List<Comment> comments;
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public Post() {
 
     }
 
-    public BlogPost(String title, String excerpt, String content, String author) {
+    public Post(String title, String excerpt, String content, String author) {
         this.title = title;
         this.excerpt = excerpt;
         this.content = content;

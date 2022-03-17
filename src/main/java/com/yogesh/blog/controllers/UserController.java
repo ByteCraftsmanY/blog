@@ -34,18 +34,18 @@ public class UserController {
         return "feed";
     }
 
-    @GetMapping("signin")
+    @GetMapping("sign-in")
     String signInUser(){
-        return "signin";
+        return "sign-in";
     }
 
-    @GetMapping("signup")
+    @GetMapping("sign-up")
     String signUpUser(Model model){
         model.addAttribute("user",new User());
-        return "signup";
+        return "sign-up";
     }
 
-    @PostMapping("checkuser")
+    @PostMapping("check-user")
     String checkAuth(@ModelAttribute("user") User user){
         return "feed";
     }

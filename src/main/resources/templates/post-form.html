@@ -9,14 +9,22 @@
 <div class="form-container blog-post-form-container">
     <div class="form-header">New/Edit Post</div>
 
-    <form action="post" method="post" id="blog-post-form" th:object="${post}">
+    <form action="#" th:action="@{/post}" method="post" id="blog-post-form" th:object="${post}">
+        <input type="hidden" th:field="*{id}">
+        <input type="hidden" th:field="*{excerpt}">
+        <input type="hidden" th:field="*{author}">
+        <input type="hidden" th:field="*{publishedAt}">
+        <input type="hidden" th:field="*{published}">
+        <input type="hidden" th:field="*{createdAt}">
+        <input type="hidden" th:field="*{updatedAt}">
+
         <label for="title" class="input-label">Title</label><br />
-        <input type="text" id="title" class="input-field" name="title" th:value="${post.title}" required />
+        <input type="text" id="title" class="input-field" name="title" th:field="*{title}" required />
         <br />
         <br />
 
         <label for="tags" class="input-label">Tags</label>
-        <input type="tags" id="tags" class="input-field" name="text" required />
+        <input type="text" id="tags" class="input-field" name="text" required />
         <span class="example-txt">example: #Java</span>
         <br />
         <br />
@@ -28,11 +36,10 @@
                 class="input-field"
                 rows="10"
                 form="blog-post-form"
-                th:text="${post.content}"
+                th:field="*{content}"
         ></textarea>
         <br />
         <br />
-
         <input class="btn" type="submit" value="SUBMIT" />
     </form>
 </div>
