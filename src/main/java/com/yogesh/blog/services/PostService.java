@@ -3,6 +3,7 @@ package com.yogesh.blog.services;
 import com.yogesh.blog.entities.Post;
 import com.yogesh.blog.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,8 +26,9 @@ public class PostService {
         return postRepository.findById(id);
     }
 
-    public List<Post> getBlogPostList(){
-        return postRepository.findAll();
+    public List<Post> getBlogPostList(Integer page){
+        return postRepository.findAll(PageRequest.of(page,2)).getContent();
+
     }
 
     public void deletePost(Integer id) {

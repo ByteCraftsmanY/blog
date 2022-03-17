@@ -59,8 +59,8 @@
 
 <footer>
     <nav class="nav-bar">
-        <a class="nav-item" href="#">Next &gt;</a>
-        <a class="nav-item left-float-item" href="#">&lt; Previous</a>
+        <a class="nav-item" href="#" th:href="@{feed(page=${page}+1)}">Next &gt;</a>
+        <a class="nav-item left-float-item" href="#" th:href="@{feed(page=${page}-1)}">&lt; Previous</a>
     </nav>
 </footer>
 </body>

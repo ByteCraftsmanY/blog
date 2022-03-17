@@ -12,13 +12,14 @@
 
     <form action="#" th:action="@{save-user}" id="signup-form" method="post" th:object="${user}">
         <label class="input-label" for="name">Name</label><br />
-        <input class="input-field" id="name" name="name" required type="text" />
+        <input th:field="*{name}" class="input-field" id="name" name="name" required type="text" />
         <br />
         <br />
 
         <label class="input-label" for="email">E-mail</label>
         <input
                 class="input-field"
+                th:field="*{email}"
                 id="email"
                 name="email"
                 required
@@ -30,6 +31,7 @@
 
         <label for="password" class="input-label">Password</label>
         <input
+                th:field="*{password}"
                 type="password"
                 id="password"
                 name="password"

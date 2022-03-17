@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,9 +23,13 @@ public class PostController {
     }
 
     @GetMapping("feed")
-    String getPosts(Model model) {
-        List<Post> posts = postService.getBlogPostList();
+    String getPosts(@RequestParam(name = "page", required = false) Integer page, Model model) {
+        if (page == null || page < 0) {
+            page = 0;
+        }
+        List<Post> posts = postService.getBlogPostList(page);
         model.addAttribute("posts", posts);
+        model.addAttribute("page", page);
         return "feed";
     }
 
@@ -35,13 +40,20 @@ public class PostController {
         Post post = blogPost.orElseGet(Post::new);
         comment.setPost(post);
         model.addAttribute("post", post);
-        model.addAttribute("comment",comment);
+        model.addAttribute("comment", comment);
         return "post";
     }
 
     @PostMapping("save-post")
-    String savePost(@ModelAttribute("post") Post blogPost) {
-        postService.addPost(blogPost);
+    String savePost(@ModelAttribute("post") Post post) {
+        if (post.getCreatedAt() == null) {
+            post.setCreatedAt(LocalDateTime.now());
+            post.setPublishedAt(LocalDateTime.now());
+        } else {
+            post.setUpdatedAt(LocalDateTime.now());
+        }
+        System.out.println(post);
+        postService.addPost(post);
         return "redirect:/feed";
     }
 

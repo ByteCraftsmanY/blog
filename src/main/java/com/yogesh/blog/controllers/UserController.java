@@ -21,14 +21,9 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("save-user")
-    String saveUser(@ModelAttribute("user") User user){
-        userService.addUser(user);
-        return "redirect:/sign-in";
-    }
-
     @GetMapping("sign-in")
-    String signInUser(){
+    String signInUser(Model model){
+        model.addAttribute("user",new User());
         return "sign-in";
     }
 
@@ -38,8 +33,14 @@ public class UserController {
         return "sign-up";
     }
 
+    @PostMapping("save-user")
+    String saveUser(@ModelAttribute("user") User user){
+        userService.addUser(user);
+        return "redirect:/sign-in";
+    }
+
     @PostMapping("check-user")
     String checkAuth(@ModelAttribute("user") User user){
-        return "feed";
+        return "redirect:/feed";
     }
 }

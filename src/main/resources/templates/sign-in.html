@@ -8,18 +8,19 @@
 <body>
 <div class="form-container sign-in-form-container">
     <div class="form-header">Login</div>
-    <form action="#" th:action="@{feed}" method="post">
-        <label for="id" class="input-label">User Name</label>
-        <input type="text" id="id" name="id" class="input-field" required />
+    <form action="#" th:action="@{/check-user}" th:object="${user}" method="post">
+        <label for="id" class="input-label" >User Name</label>
+        <input type="text" id="id" name="id" class="input-field" th:field="*{name}" required />
         <br />
         <br />
 
-        <label for="password" class="input-label">Password</label>
+        <label for="password" class="input-label" >Password</label>
         <input
                 type="password"
                 id="password"
                 name="password"
                 class="input-field"
+                th:field="*{password}"
                 required
         />
         <br /><br />
