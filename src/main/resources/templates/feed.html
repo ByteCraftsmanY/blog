@@ -32,10 +32,16 @@
         <a class="nav-item" th:href="@{new-post}" href="#">New Post</a>
 
         <label class="white-label" for="sort">Sort</label>
-        <select id="sort" name="sort">
-            <option value="name">By Name</option>
-            <option value="date">By Date</option>
-        </select>
+
+        <form th:href="@{/feed}">
+            <input type="hidden" name="page" th:value="${page}">
+            <select id="sort" name="order-by">
+                <option disabled selected>sort by published Date</option>
+                <option value="asc">asc</option>
+                <option value="desc">desc</option>
+            </select>
+            <input type="submit" value="sort">
+        </form>
 
         <label class="white-label" for="filter">filter</label>
         <select id="filter" name="filter">

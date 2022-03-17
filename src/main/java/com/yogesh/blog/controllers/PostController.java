@@ -23,11 +23,11 @@ public class PostController {
     }
 
     @GetMapping("feed")
-    String getPosts(@RequestParam(name = "page", required = false) Integer page, Model model) {
+    String getPosts(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page, @RequestParam(name = "order-by", defaultValue = "asc", required = false) String orderBy, Model model) {
         if (page == null || page < 0) {
             page = 0;
         }
-        List<Post> posts = postService.getBlogPostList(page);
+        List<Post> posts = postService.getBlogPostList(page, orderBy);
         model.addAttribute("posts", posts);
         model.addAttribute("page", page);
         return "feed";
@@ -52,7 +52,6 @@ public class PostController {
         } else {
             post.setUpdatedAt(LocalDateTime.now());
         }
-        System.out.println(post);
         postService.addPost(post);
         return "redirect:/feed";
     }
