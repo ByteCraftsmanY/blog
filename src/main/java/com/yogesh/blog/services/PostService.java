@@ -19,22 +19,18 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public void addPost(Post blogPost){
-        postRepository.save(blogPost);
+    public void addPost(Post post){
+        postRepository.save(post);
     }
 
     public Optional<Post> getPost(Integer id){
         return postRepository.findById(id);
     }
 
-    public List<Post> getBlogPostList(Integer page, String orderBy){
+    public List<Post> getBlogPostList(Integer start, Integer limit, String orderBy){
         Sort sort = Sort.by("publishedAt");
-        if(orderBy.equals("asc")) {
-            sort = sort.ascending();
-        }else {
-            sort = sort.descending();
-        }
-        return postRepository.findAll(PageRequest.of(page,2,sort)).getContent();
+        sort = orderBy.equals("asc")? sort.ascending() : sort.descending();
+        return postRepository.findAll(PageRequest.of(start,limit,sort)).getContent();
     }
 
     public void deletePost(Integer id) {

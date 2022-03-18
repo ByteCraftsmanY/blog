@@ -1,46 +1,47 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="US-ASCII" />
-    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <meta charset="US-ASCII"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <title>Contact Us</title>
 </head>
 <body>
 <div class="form-container blog-post-form-container">
     <div class="form-header">New/Edit Post</div>
 
-    <form action="#" th:action="@{/save-post}" method="post" id="blog-post-form" th:object="${post}">
-        <input type="hidden" th:field="*{id}">
-        <input type="hidden" th:field="*{excerpt}">
-        <input type="hidden" th:field="*{author}">
-        <input type="hidden" th:field="*{publishedAt}">
-        <input type="hidden" th:field="*{published}">
-        <input type="hidden" th:field="*{createdAt}">
-        <input type="hidden" th:field="*{updatedAt}">
+    <form action="#" id="blog-post-form" method="post" th:action="@{/save-post}" th:object="${post}">
+        <input th:field="*{id}" type="hidden">
+        <input th:field="*{excerpt}" type="hidden">
+        <input th:field="*{author}" type="hidden">
+        <input th:field="*{publishedAt}" type="hidden">
+        <input th:field="*{published}" type="hidden">
+        <input th:field="*{createdAt}" type="hidden">
+        <input th:field="*{updatedAt}" type="hidden">
 
-        <label for="title" class="input-label">Title</label><br />
-        <input type="text" id="title" class="input-field" name="title" th:field="*{title}" required />
-        <br />
-        <br />
+        <label class="input-label" for="title">Title</label><br/>
+        <input class="input-field" id="title" name="title" required th:field="*{title}" type="text"/>
+        <br/>
+        <br/>
 
-        <label for="tags" class="input-label">Tags</label>
-        <input type="text" id="tags" class="input-field" name="text" required />
+        <label class="input-label" for="tags">Tags</label>
+        <input class="input-field" id="tags" th:name="tags" name="text" required type="text"/>
         <span class="example-txt">example: #Java</span>
-        <br />
-        <br />
 
-        <label for="content" class="input-label">Content</label> <br />
+        <br/>
+        <br/>
+
+        <label class="input-label" for="content">Content</label> <br/>
         <textarea
-                name="content"
-                id="content"
                 class="input-field"
-                rows="10"
                 form="blog-post-form"
+                id="content"
+                name="content"
+                rows="10"
                 th:field="*{content}"
         ></textarea>
-        <br />
-        <br />
-        <input class="btn" type="submit" value="SUBMIT" />
+        <br/>
+        <br/>
+        <input class="btn" type="submit" value="SUBMIT"/>
     </form>
 </div>
 </body>

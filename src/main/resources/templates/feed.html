@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <meta charset="UTF-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <title>Blog Home</title>
 </head>
 <body id="dash-body">
@@ -20,21 +20,21 @@
             <label for="search"></label>
             <input
                     class="input-field search-field"
-                    type="text"
                     id="search"
                     name="search"
                     placeholder="Search"
                     required
+                    type="text"
             />
-            <input type="submit" class="nav-item" value="Search" />
+            <input class="nav-item" type="submit" value="Search"/>
         </form>
 
-        <a class="nav-item" th:href="@{new-post}" href="#">New Post</a>
+        <a class="nav-item" href="#" th:href="@{new-post}">New Post</a>
 
         <label class="white-label" for="sort">Sort</label>
 
         <form th:href="@{/feed}">
-            <input type="hidden" name="page" th:value="${page}">
+            <input name="page" th:value="${limit} + ${start}" type="hidden">
             <select id="sort" name="order-by">
                 <option disabled selected>sort by published Date</option>
                 <option value="asc">asc</option>
@@ -52,21 +52,22 @@
 <div class="nav-bar"></div>
 
 <section th:each="post : ${posts}">
-        <article class="blog-post-item">
-            <h1 th:text="${post.title}"></h1>
-            <h3><span th:text="${post.author}"></span>,<span th:text="${post.publishedAt}"></span></h3>
-            <br /><br />
-            <p th:text="${post.content}"></p>
-            <a class="" th:href="@{edit-post(id=${post.id})}">Edit</a>
-            <a class="" th:href="@{show-post(id=${post.id})}">view</a>
-            <a class="" th:href="@{delete-post(id=${post.id})}">delete</a>
-        </article>
+    <article class="blog-post-item">
+        <h1 th:text="${post.title}"></h1>
+        <h3><span th:text="${post.author}"></span>,<span th:text="${post.publishedAt}"></span></h3>
+        <br/><br/>
+        <p th:text="${post.content}"></p>
+        <a class="" th:href="@{edit-post(id=${post.id})}">Edit</a>
+        <a class="" th:href="@{show-post(id=${post.id})}">view</a>
+        <a class="" th:href="@{delete-post(id=${post.id})}">delete</a>
+    </article>
 </section>
 
 <footer>
     <nav class="nav-bar">
-        <a class="nav-item" href="#" th:href="@{feed(page=${page}+1)}">Next &gt;</a>
-        <a class="nav-item left-float-item" href="#" th:href="@{feed(page=${page}-1)}">&lt; Previous</a>
+        <a class="nav-item" href="#" th:href="@{feed(page=${page}+1,limit=${limit})}">Next &gt;</a>
+        <a class="nav-item left-float-item" href="#" th:href="@{feed(page=${page} - 1,limit=${limit})}">&lt;
+            Previous</a>
     </nav>
 </footer>
 </body>

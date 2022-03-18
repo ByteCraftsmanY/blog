@@ -23,8 +23,8 @@ public class CommentController {
     }
 
     @GetMapping("fetch-comment")
-    public String getComment(@RequestParam("id") String id) {
-        Optional<Comment> comment = commentService.fetchComment(Integer.parseInt(id));
+    public String getComment(@RequestParam("id") Integer id) {
+        Optional<Comment> comment = commentService.fetchComment(id);
         if(comment.isPresent())
             System.out.println(comment);
         return "feed";
@@ -42,15 +42,15 @@ public class CommentController {
     }
 
     @GetMapping("delete-comment")
-    public String deleteComment(@RequestParam("id") String id,@RequestParam("post-id") String postId){
-        commentService.deleteComment(Integer.parseInt(id));
+    public String deleteComment(@RequestParam("id") Integer id,@RequestParam("post-id") String postId){
+        commentService.deleteComment(id);
         return "redirect:/show-post?id="+postId;
     }
 
     @GetMapping("update-comment")
     public String updateComment(@RequestParam("id") Integer id,Model model){
-        Comment comment = commentService.fetchComment(id).get();
-        model.addAttribute("comment",comment);
+        Optional<Comment> comment = commentService.fetchComment(id);
+        model.addAttribute("comment",comment.orElseGet(Comment::new));
         return "comment-form";
     }
 }
