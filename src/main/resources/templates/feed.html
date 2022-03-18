@@ -10,13 +10,15 @@
 <body id="dash-body">
 
 <header class="nav-bar">
-    <div>
-        <h1 class="nav-logo">My Blog Application</h1>
-    </div>
+    <a th:href="@{feed}">
+        <div>
+            <h1 class="nav-logo">My Blog Application</h1>
+        </div>
+    </a>
     <div class="options">
         <a class="nav-item" href="#" th:href="@{/sign-in}">Login</a>
 
-        <form>
+        <form th:action="@{feed}">
             <label for="search"></label>
             <input
                     class="input-field search-field"
@@ -34,12 +36,21 @@
         <label class="white-label" for="sort">Sort</label>
 
         <form th:href="@{/feed}">
-            <input name="page" th:value="${limit} + ${start}" type="hidden">
-            <select id="sort" name="order-by">
-                <option disabled selected>sort by published Date</option>
-                <option value="asc">asc</option>
-                <option value="desc">desc</option>
+            <input type="hidden" name="start" th:value="${start}">
+            <input type="hidden" name="limit" th:value="${limit}">
+            <select id="sort" name="sort-field">
+                <option value="title">title</option>
+                <option value="excerpt">excerpt</option>
+                <option value="content">content</option>
+                <option value="author">author</option>
+                <option selected value="publishedAt">published At</option>
             </select>
+
+            <select name="order" value="asc">
+                <option value="asc" >ascending</option>
+                <option selected value="desc">descending</option>
+            </select>
+
             <input type="submit" value="sort">
         </form>
 
@@ -65,8 +76,8 @@
 
 <footer>
     <nav class="nav-bar">
-        <a class="nav-item" href="#" th:href="@{feed(page=${page}+1,limit=${limit})}">Next &gt;</a>
-        <a class="nav-item left-float-item" href="#" th:href="@{feed(page=${page} - 1,limit=${limit})}">&lt;
+        <a class="nav-item" href="#" th:href="@{feed(start=${start}+${limit},limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">Next &gt;</a>
+        <a class="nav-item left-float-item" href="#" th:href="@{feed(start=${start} - ${limit},limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">&lt;
             Previous</a>
     </nav>
 </footer>

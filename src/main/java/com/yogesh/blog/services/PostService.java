@@ -7,8 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PostService {
@@ -19,21 +18,26 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public void addPost(Post post){
+    public void addPost(Post post) {
         postRepository.save(post);
     }
 
-    public Optional<Post> getPost(Integer id){
+    public Optional<Post> getPost(Integer id) {
         return postRepository.findById(id);
     }
 
-    public List<Post> getBlogPostList(Integer start, Integer limit, String orderBy){
-        Sort sort = Sort.by("publishedAt");
-        sort = orderBy.equals("asc")? sort.ascending() : sort.descending();
-        return postRepository.findAll(PageRequest.of(start,limit,sort)).getContent();
+    public List<Post> getPostList(String sortingField, String sortingOrder, Integer start, Integer limit) {
+        return postRepository.findPostsByLimit(start, limit);
     }
 
     public void deletePost(Integer id) {
         postRepository.deleteById(id);
+    }
+
+    public List<Post> searchPost(String keyword) {
+        Set<Post> posts = new HashSet<>();
+        posts.addAll(postRepository.findPostsWithKeyword(keyword));
+        posts.addAll(postRepository.findPostWithTagKeyword(keyword));
+        return new ArrayList<>(posts);
     }
 }

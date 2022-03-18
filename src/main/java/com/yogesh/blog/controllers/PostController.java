@@ -6,7 +6,6 @@ import com.yogesh.blog.entities.Post;
 import com.yogesh.blog.entities.PostTag;
 import com.yogesh.blog.entities.Tag;
 import com.yogesh.blog.services.PostService;
-import com.yogesh.blog.services.PostTagService;
 import com.yogesh.blog.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,24 +21,30 @@ import java.util.Optional;
 public class PostController {
     private final PostService postService;
     private final TagService tagService;
-    private final PostTagService postTagService;
 
     @Autowired
-    public PostController(PostService postService, TagService tagService, PostTagService postTagService) {
+    public PostController(PostService postService, TagService tagService) {
         this.postService = postService;
         this.tagService = tagService;
-        this.postTagService = postTagService;
     }
 
     @GetMapping("feed")
-    String getPosts(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page, @RequestParam(name = "limit", defaultValue = "2", required = false) Integer limit, @RequestParam(name = "order-by", defaultValue = "asc", required = false) String orderBy, Model model) {
-        if(page <= 0){
-            page = 0;
+    String getPosts(@RequestParam(name = "start", defaultValue = "0", required = false) Integer start, @RequestParam(name = "limit", defaultValue = "4", required = false) Integer limit, @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField, @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder, @RequestParam(name = "search", required = false) String keyword, Model model) {
+        List<Post> posts;
+
+        if (start <= 0) {
+            start = 0;
         }
-        List<Post> posts = postService.getBlogPostList(page, limit, orderBy);
+        if (keyword == null) {
+            posts = postService.getPostList(sortingField, sortingOrder, start, limit);
+        } else {
+            posts = postService.searchPost(keyword);
+        }
         model.addAttribute("posts", posts);
-        model.addAttribute("page", page);
+        model.addAttribute("start", start);
         model.addAttribute("limit", limit);
+        model.addAttribute("sortingField", sortingField);
+        model.addAttribute("sortingOrder", sortingOrder);
         return "feed";
     }
 
@@ -68,7 +73,7 @@ public class PostController {
         List<String> tagList = List.of(tags.split(" "));
         final List<PostTag> postTagList = new ArrayList<>();
 
-        tagList.forEach(tag->{
+        tagList.forEach(tag -> {
             Tag tagObj = new Tag();
             tagObj.setName(tag);
             tagObj.setCreatedAt(LocalDateTime.now());
