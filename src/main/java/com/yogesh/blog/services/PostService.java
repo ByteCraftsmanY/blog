@@ -3,10 +3,9 @@ package com.yogesh.blog.services;
 import com.yogesh.blog.entities.Post;
 import com.yogesh.blog.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -18,26 +17,32 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public void addPost(Post post) {
+    public void savePost(Post post) {
         postRepository.save(post);
     }
 
-    public Optional<Post> getPost(Integer id) {
-        return postRepository.findById(id);
+    public Post findPostById(Integer id) {
+        return postRepository.findById(id).get();
     }
 
-    public List<Post> getPostList(String sortingField, String sortingOrder, Integer start, Integer limit) {
-        return postRepository.findPostsByLimit(start, limit);
+    public List<Post> findAllPost(String sortingField, String sortingOrder, Integer start, Integer limit) {
+        // TODO: Implement pagination
+//        return postRepository.findPostsWithOffsetAndLimit(start, limit);
+        return postRepository.findAll();
     }
 
-    public void deletePost(Integer id) {
+    public void deletePostById(Integer id) {
         postRepository.deleteById(id);
     }
 
-    public List<Post> searchPost(String keyword) {
+    public List<Post> findPostsWithCriteria(List<String> tagList, String author, LocalDateTime startDateTime, LocalDateTime endDateTime){
+        return postRepository.findPostsWithCriteria(author,startDateTime,endDateTime,tagList);
+    }
+
+    public List<Post> findPostsHavingKeyword(String keyword) {
         Set<Post> posts = new HashSet<>();
-        posts.addAll(postRepository.findPostsWithKeyword(keyword));
-        posts.addAll(postRepository.findPostWithTagKeyword(keyword));
+        posts.addAll(postRepository.findPostsHavingTag(keyword));
+        posts.addAll(postRepository.findPostsHavingKeyword(keyword));
         return new ArrayList<>(posts);
     }
 }

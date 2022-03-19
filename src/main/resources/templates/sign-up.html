@@ -1,58 +1,58 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="US-ASCII" />
-    <link th:href="@{/css/style.css}" rel="stylesheet" />
-    <title>Sign in</title>
+    <meta charset="US-ASCII"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <title>Sign up</title>
 </head>
 <body>
 <div class="form-container signup-form-container">
     <!--    <div class="msg ${isRequestSaved  ? 'success-msg' : 'error-msg'}">${responseMsg}</div>-->
     <div class="form-header">Create Account</div>
 
-    <form action="#" th:action="@{save-user}" id="signup-form" method="post" th:object="${user}">
-        <label class="input-label" for="name">Name</label><br />
-        <input th:field="*{name}" class="input-field" id="name" name="name" required type="text" />
-        <br />
-        <br />
+    <form action="#" id="signup-form" method="post" th:action="@{save-user}" th:object="${user}">
+        <label class="input-label" for="name">Name</label><br/>
+        <input class="input-field" id="name" name="name" required th:field="*{name}" type="text"/>
+        <br/>
+        <br/>
 
         <label class="input-label" for="email">E-mail</label>
         <input
                 class="input-field"
-                th:field="*{email}"
                 id="email"
                 name="email"
                 required
+                th:field="*{email}"
                 type="email"
         />
         <span class="example-txt">example@example.com</span>
-        <br />
-        <br />
+        <br/>
+        <br/>
 
-        <label for="password" class="input-label">Password</label>
+        <label class="input-label" for="password">Password</label>
         <input
-                th:field="*{password}"
-                type="password"
+                class="input-field"
                 id="password"
                 name="password"
-                class="input-field"
                 required
+                th:field="*{password}"
+                type="password"
         />
-        <br /><br />
-        <label for="confirm-password" class="input-label"
+        <br/><br/>
+        <label class="input-label" for="confirm-password"
         >Confirm Password</label
         >
         <input
-                type="password"
+                class="input-field"
                 id="confirm-password"
                 name="confirm-password"
-                class="input-field"
                 required
+                type="password"
         />
-        <br /><br />
-        <input class="btn" type="submit" value="SUBMIT" />
+        <br/><br/>
+        <input class="btn" type="submit" value="SUBMIT"/>
     </form>
-    <br />
+    <br/>
     <p class="msg auth-msg">Have account? <a th:href="@{sign-in}">Login</a></p>
 </div>
 </body>

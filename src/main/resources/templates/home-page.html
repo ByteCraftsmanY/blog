@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8"/>
     <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
@@ -7,18 +8,19 @@
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <title>Blog Home</title>
 </head>
-<body id="dash-body">
 
+<body id="dash-body">
 <header class="nav-bar">
-    <a th:href="@{feed}">
+    <a th:href="@{/}">
         <div>
             <h1 class="nav-logo">My Blog Application</h1>
         </div>
     </a>
+
     <div class="options">
         <a class="nav-item" href="#" th:href="@{/sign-in}">Login</a>
 
-        <form th:action="@{feed}">
+        <form th:action="@{/}">
             <label for="search"></label>
             <input
                     class="input-field search-field"
@@ -34,10 +36,9 @@
         <a class="nav-item" href="#" th:href="@{new-post}">New Post</a>
 
         <label class="white-label" for="sort">Sort</label>
-
-        <form th:href="@{/feed}">
-            <input type="hidden" name="start" th:value="${start}">
-            <input type="hidden" name="limit" th:value="${limit}">
+        <form th:href="@{/}">
+            <input name="start" th:value="${start}" type="hidden">
+            <input name="limit" th:value="${limit}" type="hidden">
             <select id="sort" name="sort-field">
                 <option value="title">title</option>
                 <option value="excerpt">excerpt</option>
@@ -46,18 +47,42 @@
                 <option selected value="publishedAt">published At</option>
             </select>
 
-            <select name="order" value="asc">
-                <option value="asc" >ascending</option>
-                <option selected value="desc">descending</option>
-            </select>
+            <label>
+                <select name="order">
+                    <option value="asc">ascending</option>
+                    <option selected value="desc">descending</option>
+                </select>
+            </label>
 
             <input type="submit" value="sort">
         </form>
 
-        <label class="white-label" for="filter">filter</label>
-        <select id="filter" name="filter">
-            <option value="name">by name</option>
-        </select>
+        <!--    Filter Form    -->
+        <form th:href="@{/}">
+            <input type="hidden" name="filter" value="true">
+            <label>
+                <input name="start-date" type="date">
+            </label>
+
+            <label>
+                <input name="end-date" type="date">
+            </label>
+
+            <label>
+                <select name="author">
+                    <option disabled selected value="">Author Name</option>
+                    <option th:each="user : ${users}" th:text="${user.name}" th:value="${user.name}">
+                    </option>
+                </select>
+            </label>
+
+            <label>
+                <input name="tags" type="text" placeholder="Tags separated by space">
+            </label>
+
+            <input type="submit" value="filter">
+        </form>
+
     </div>
 </header>
 <div class="nav-bar"></div>
@@ -67,6 +92,7 @@
         <h1 th:text="${post.title}"></h1>
         <h3><span th:text="${post.author}"></span>,<span th:text="${post.publishedAt}"></span></h3>
         <br/><br/>
+        <p th:text="${post.excerpt}"></p>
         <p th:text="${post.content}"></p>
         <a class="" th:href="@{edit-post(id=${post.id})}">Edit</a>
         <a class="" th:href="@{show-post(id=${post.id})}">view</a>
@@ -76,8 +102,11 @@
 
 <footer>
     <nav class="nav-bar">
-        <a class="nav-item" href="#" th:href="@{feed(start=${start}+${limit},limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">Next &gt;</a>
-        <a class="nav-item left-float-item" href="#" th:href="@{feed(start=${start} - ${limit},limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">&lt;
+        <a class="nav-item" href="#"
+           th:href="@{/(start=${start} + ${limit},limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">Next
+            &gt;</a>
+        <a class="nav-item left-float-item" href="#"
+           th:href="@{/(start=${start} - ${limit},limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">&lt;
             Previous</a>
     </nav>
 </footer>

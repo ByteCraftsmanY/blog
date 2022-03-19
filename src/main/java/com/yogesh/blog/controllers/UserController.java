@@ -22,25 +22,25 @@ public class UserController {
     }
 
     @GetMapping("sign-in")
-    String signInUser(Model model){
+    String showFormForSignIn(Model model){
         model.addAttribute("user",new User());
         return "sign-in";
     }
 
     @GetMapping("sign-up")
-    String signUpUser(Model model){
+    String showFormForSignUp(Model model){
         model.addAttribute("user",new User());
-        return "sign-up";
+        return "redirect:/sign-in";
     }
 
     @PostMapping("save-user")
     String saveUser(@ModelAttribute("user") User user){
-        userService.addUser(user);
+        userService.saveUser(user);
         return "redirect:/sign-in";
     }
 
     @PostMapping("check-user")
-    String checkAuth(@ModelAttribute("user") User user){
-        return "redirect:/feed";
+    String checkUser(@ModelAttribute("user") User user){
+        return "redirect:/";
     }
 }

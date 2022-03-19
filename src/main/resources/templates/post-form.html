@@ -3,7 +3,7 @@
 <head>
     <meta charset="US-ASCII"/>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <title>Contact Us</title>
+    <title>Post Form</title>
 </head>
 <body>
 <div class="form-container blog-post-form-container">
@@ -11,8 +11,8 @@
 
     <form action="#" id="blog-post-form" method="post" th:action="@{/save-post}" th:object="${post}">
         <input th:field="*{id}" type="hidden">
-        <input th:field="*{excerpt}" type="hidden">
-        <input th:field="*{author}" type="hidden">
+<!--        <input th:field="*{excerpt}" type="hidden">-->
+<!--        <input th:field="*{author}" type="hidden">-->
         <input th:field="*{publishedAt}" type="hidden">
         <input th:field="*{published}" type="hidden">
         <input th:field="*{createdAt}" type="hidden">
@@ -20,6 +20,16 @@
 
         <label class="input-label" for="title">Title</label><br/>
         <input class="input-field" id="title" name="title" required th:field="*{title}" type="text"/>
+        <br/>
+        <br/>
+
+        <label class="input-label" for="author">author</label><br/>
+        <input class="input-field" id="author" name="author" required th:field="*{author}" type="text"/>
+        <br/>
+        <br/>
+
+        <label class="input-label" for="excerpt">Excerpt</label><br/>
+        <input class="input-field" id="excerpt" name="excerpt" required th:field="*{excerpt}" type="text"/>
         <br/>
         <br/>
 
