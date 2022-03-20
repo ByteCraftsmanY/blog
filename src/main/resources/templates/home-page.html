@@ -10,6 +10,7 @@
 </head>
 
 <body id="dash-body">
+
 <header class="nav-bar">
     <a th:href="@{/}">
         <div>
@@ -17,28 +18,64 @@
         </div>
     </a>
 
-    <div class="options">
-        <a class="nav-item" href="#" th:href="@{/sign-in}">Login</a>
+    <br><br>
+    <a class="nav-item" href="#" th:href="@{/sign-in}">Login</a>
+    <a class="nav-item" href="#" th:href="@{new-post}">New Post</a>
+</header>
 
-        <form th:action="@{/}">
-            <label for="search"></label>
-            <input
-                    class="input-field search-field"
-                    id="search"
-                    name="search"
-                    placeholder="Search"
-                    required
-                    type="text"
-            />
-            <input class="nav-item" type="submit" value="Search"/>
-        </form>
+<!-- Search Form -->
+<div class="option-form-container">
+    <form th:action="@{/}">
+        <label for="search"></label>
+        <input
+                id="search"
+                name="search"
+                placeholder="Search"
+                required
+                type="text"
+        />
+        <input type="submit" value="Search"/>
+    </form>
+</div>
 
-        <a class="nav-item" href="#" th:href="@{new-post}">New Post</a>
 
-        <label class="white-label" for="sort">Sort</label>
-        <form th:href="@{/}">
-            <input name="start" th:value="${start}" type="hidden">
-            <input name="limit" th:value="${limit}" type="hidden">
+<!--    Filter Form    -->
+<div class="option-form-container">
+    <span class="white-label">Filter</span>
+    <form th:href="@{/}">
+        <input name="filter" type="hidden" value="true">
+        <label>
+            <input name="start-date" type="date">
+        </label>
+
+        <label>
+            <input name="end-date" type="date">
+        </label>
+
+        <label>
+            <select name="author">
+                <option disabled selected value="">Author Name</option>
+                <option th:each="user : ${users}" th:text="${user.name}" th:value="${user.name}">
+                </option>
+            </select>
+        </label>
+
+        <label>
+            <input name="tags" placeholder="Tags separated by space" type="text">
+        </label>
+
+        <input type="submit" value="filter">
+    </form>
+</div>
+
+
+<!--Sort Form-->
+<div class="option-form-container">
+    <span class="white-label">Sort</span>
+    <form th:href="@{/}">
+        <input name="start" th:value="${page}" type="hidden">
+        <input name="limit" th:value="${limit}" type="hidden">
+        <label>
             <select id="sort" name="sort-field">
                 <option value="title">title</option>
                 <option value="excerpt">excerpt</option>
@@ -46,46 +83,18 @@
                 <option value="author">author</option>
                 <option selected value="publishedAt">published At</option>
             </select>
+        </label>
 
-            <label>
-                <select name="order">
-                    <option value="asc">ascending</option>
-                    <option selected value="desc">descending</option>
-                </select>
-            </label>
+        <label>
+            <select name="order">
+                <option value="asc">ascending</option>
+                <option selected value="desc">descending</option>
+            </select>
+        </label>
 
-            <input type="submit" value="sort">
-        </form>
-
-        <!--    Filter Form    -->
-        <form th:href="@{/}">
-            <input type="hidden" name="filter" value="true">
-            <label>
-                <input name="start-date" type="date">
-            </label>
-
-            <label>
-                <input name="end-date" type="date">
-            </label>
-
-            <label>
-                <select name="author">
-                    <option disabled selected value="">Author Name</option>
-                    <option th:each="user : ${users}" th:text="${user.name}" th:value="${user.name}">
-                    </option>
-                </select>
-            </label>
-
-            <label>
-                <input name="tags" type="text" placeholder="Tags separated by space">
-            </label>
-
-            <input type="submit" value="filter">
-        </form>
-
-    </div>
-</header>
-<div class="nav-bar"></div>
+        <input type="submit" value="sort">
+    </form>
+</div>
 
 <section th:each="post : ${posts}">
     <article class="blog-post-item">
@@ -103,10 +112,10 @@
 <footer>
     <nav class="nav-bar">
         <a class="nav-item" href="#"
-           th:href="@{/(start=${start} + ${limit},limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">Next
+           th:href="@{/(page=${page} + 1,limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">Next
             &gt;</a>
         <a class="nav-item left-float-item" href="#"
-           th:href="@{/(start=${start} - ${limit},limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">&lt;
+           th:href="@{/(page=${page} - 1,limit=${limit},sort-field=${sortingField},order=${sortingOrder})}">&lt;
             Previous</a>
     </nav>
 </footer>

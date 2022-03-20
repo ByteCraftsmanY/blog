@@ -23,8 +23,8 @@
             <span th:text="${post.publishedAt}"></span>
         </p>
         <p>
-            <span th:each="tag : ${post.postTags}">
-            <span th:text="${tag.tag.name}"></span> ,
+            <span th:each="tag : ${post.tags}">
+            <span th:text="${tag.name}"></span> ,
         </span>
         </p>
     </div>

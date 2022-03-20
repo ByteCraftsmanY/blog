@@ -193,17 +193,8 @@ footer {
     text-align: center;
 }
 
-.options {
-    float: right;
-    display: inline;
-}
-
-.white-lebel {
+.white-label {
     color: white;
-}
-
-.search-field {
-    width: 40%;
 }
 
 .blog-link {
@@ -213,4 +204,11 @@ footer {
 
 table, th, td {
     border: 1px solid black;
+}
+
+.option-form-container{
+    margin: 1px 0;
+    padding: 1px;
+    border: 2px solid wheat;
+    background-color: darkslateblue;
 }

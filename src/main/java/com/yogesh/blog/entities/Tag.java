@@ -21,8 +21,9 @@ public class Tag {
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
-    private List<PostTag> postTag;
+    @ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH},fetch = FetchType.LAZY)
+    @JoinTable(name = "post_tags",joinColumns = @JoinColumn(name = "tag_id"),inverseJoinColumns = @JoinColumn(name = "post_id"))
+    private List<Post> posts;
 
     public Tag() {
 
@@ -64,12 +65,12 @@ public class Tag {
         this.updatedAt = updatedAt;
     }
 
-    public List<PostTag> getPostTag() {
-        return postTag;
+    public List<Post> getPosts() {
+        return posts;
     }
 
-    public void setPostTag(List<PostTag> postTag) {
-        this.postTag = postTag;
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
     }
 
     @Override

@@ -39,8 +39,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<PostTag> postTags;
+    @ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH},fetch = FetchType.EAGER)
+    @JoinTable(name = "post_tags", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private List<Tag> tags;
 
     public Post() {
 
@@ -133,12 +134,12 @@ public class Post {
         this.comments = comments;
     }
 
-    public List<PostTag> getPostTags() {
-        return postTags;
+    public List<Tag> getTags() {
+        return tags;
     }
 
-    public void setPostTags(List<PostTag> postTags) {
-        this.postTags = postTags;
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 
     @Override

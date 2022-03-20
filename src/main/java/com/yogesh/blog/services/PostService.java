@@ -3,6 +3,8 @@ package com.yogesh.blog.services;
 import com.yogesh.blog.entities.Post;
 import com.yogesh.blog.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,13 +24,13 @@ public class PostService {
     }
 
     public Post findPostById(Integer id) {
-        return postRepository.findById(id).get();
+        return postRepository.findById(id).orElse(null);
     }
 
-    public List<Post> findAllPost(String sortingField, String sortingOrder, Integer start, Integer limit) {
-        // TODO: Implement pagination
-//        return postRepository.findPostsWithOffsetAndLimit(start, limit);
-        return postRepository.findAll();
+    public List<Post> findAllPost(String sortingField, String sortingOrder, Integer page, Integer item) {
+        Sort sort = Sort.by(sortingField);
+        sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
+        return postRepository.findAll(PageRequest.of(page,item,sort)).getContent();
     }
 
     public void deletePostById(Integer id) {

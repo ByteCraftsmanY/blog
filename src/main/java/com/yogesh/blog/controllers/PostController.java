@@ -32,18 +32,27 @@ public class PostController {
     }
 
     @GetMapping("/")
-    String getPostsWithCriteria(@RequestParam(name = "start", defaultValue = "0", required = false) Integer start, @RequestParam(name = "limit", defaultValue = "4", required = false) Integer limit, @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField, @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder, @RequestParam(name = "search", required = false) String keyword, @RequestParam(name = "filter", defaultValue = "false", required = false) Boolean filter, @RequestParam(name = "tags", required = false) String tags, @RequestParam(name = "start-date", required = false) String startDate, @RequestParam(name = "end-date", required = false) String endDate, @RequestParam(name = "author", defaultValue = "", required = false) String author, Model model) {
+    String getPostsWithCriteria(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
+                                @RequestParam(name = "limit", defaultValue = "5", required = false) Integer limit,
+                                @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
+                                @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
+                                @RequestParam(name = "search", required = false) String keyword,
+                                @RequestParam(name = "filter", defaultValue = "false", required = false) Boolean filter,
+                                @RequestParam(name = "tags", required = false) String tags,
+                                @RequestParam(name = "start-date", required = false) String startDate,
+                                @RequestParam(name = "end-date", required = false) String endDate,
+                                @RequestParam(name = "author", defaultValue = "", required = false) String author, Model model) {
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
         List<Post> posts;
         List<User> users = userService.findAllUsers();
-        // paging
-        if (start <= 0) {
-            start = 0;
+
+        if (page <= 0) {
+            page = 0;
         }
         if (keyword != null) {
             posts = postService.findPostsHavingKeyword(keyword);
-        } else if (filter) { // filter
+        } else if (filter) {
             if (startDate == null || startDate.length() == 0) {
                 startDate = "1970-01-01";
             }
@@ -51,7 +60,7 @@ public class PostController {
                 endDate = LocalDate.now().plusDays(1).toString();
             }
             startDateTime = LocalDate.parse(startDate).atStartOfDay();
-            endDateTime = LocalDate.parse(endDate).atStartOfDay();
+            endDateTime = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
 
             List<String> tagListForSearch;
             if (tags == null || tags.isEmpty()) {
@@ -62,15 +71,12 @@ public class PostController {
             } else {
                 tagListForSearch = List.of(tags.split(" "));
             }
-
-//            System.out.println("Filter for " + author + " -> " + startDate + " -> " + endDate + " >> " + tagListForSearch);
-
             posts = postService.findPostsWithCriteria(tagListForSearch, author, startDateTime, endDateTime);
         } else {
-            posts = postService.findAllPost(sortingField, sortingOrder, start, limit);
+            posts = postService.findAllPost(sortingField, sortingOrder, page, limit);
         }
         model.addAttribute("posts", posts);
-        model.addAttribute("start", start);
+        model.addAttribute("page", page);
         model.addAttribute("limit", limit);
         model.addAttribute("sortingField", sortingField);
         model.addAttribute("sortingOrder", sortingOrder);
@@ -91,29 +97,22 @@ public class PostController {
     }
 
     @PostMapping("save-post")
-    String savePost(@ModelAttribute("post") Post post, @RequestParam("tags") String tags) {
+    String savePost(@ModelAttribute("post") Post post,
+                    @RequestParam(name = "tags-string") String tagString) {
         if (post.getCreatedAt() == null) {
             post.setCreatedAt(LocalDateTime.now());
             post.setPublishedAt(LocalDateTime.now());
         } else {
             post.setUpdatedAt(LocalDateTime.now());
         }
-        List<String> tagList = List.of(tags.split(" "));
-        List<PostTag> postTagList = new ArrayList<>();
-
-        tagList.forEach(tagName -> {
+        List<Tag> tagList = new ArrayList<>();
+        for(String tagName : tagString.split(" ")){
             Tag tag = new Tag();
             tag.setName(tagName);
             tag.setCreatedAt(LocalDateTime.now());
-            tagService.saveTag(tag);
-
-            PostTag postTag = new PostTag();
-            postTag.setTag(tag);
-            postTag.setPost(post);
-            postTag.setCreatedAt(LocalDateTime.now());
-            postTagList.add(postTag);
-        });
-        post.setPostTags(postTagList);
+            tagList.add(tag);
+        }
+        post.setTags(tagList);
         postService.savePost(post);
         return "redirect:/";
     }

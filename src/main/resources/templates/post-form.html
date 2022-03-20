@@ -11,8 +11,9 @@
 
     <form action="#" id="blog-post-form" method="post" th:action="@{/save-post}" th:object="${post}">
         <input th:field="*{id}" type="hidden">
-<!--        <input th:field="*{excerpt}" type="hidden">-->
-<!--        <input th:field="*{author}" type="hidden">-->
+        <!--                <input th:field="*{tags}" type="hidden">--><!--Not working because form cannot send list-->
+        <!--        <input th:field="*{excerpt}" type="hidden">-->
+        <!--        <input th:field="*{author}" type="hidden">-->
         <input th:field="*{publishedAt}" type="hidden">
         <input th:field="*{published}" type="hidden">
         <input th:field="*{createdAt}" type="hidden">
@@ -33,10 +34,13 @@
         <br/>
         <br/>
 
-        <label class="input-label" for="tags">Tags</label>
-        <input class="input-field" id="tags" th:name="tags" name="text" required type="text"/>
+        <label class="input-label" for="tags-string">Tags</label>
+        <span th:each="tag : *{tags}">
+                    <span th:text="${tag.name}">
+                    </span> &nbsp;
+                </span>
+        <input class="input-field" id="tags-string" name="tags-string" required type="text"/>
         <span class="example-txt">example: #Java</span>
-
         <br/>
         <br/>
 
@@ -51,6 +55,7 @@
         ></textarea>
         <br/>
         <br/>
+
         <input class="btn" type="submit" value="SUBMIT"/>
     </form>
 </div>
