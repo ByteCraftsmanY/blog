@@ -88,7 +88,7 @@ public class PostController {
 
     @PostMapping("save-post")
     String savePost(@ModelAttribute("post") Post post,
-                    @RequestParam(name = "tags-string") String tagString) {
+                    @RequestParam(name = "tag-string") String tagString) {
         if (post.getCreatedAt() == null) {
             post.setCreatedAt(LocalDateTime.now());
             post.setPublishedAt(LocalDateTime.now());
@@ -119,7 +119,14 @@ public class PostController {
     @GetMapping("edit-post")
     String fetchPostForUpdate(@RequestParam("id") Integer id, Model model) {
         Post post = postService.findPostById(id);
+
         model.addAttribute("post", post);
+        String tags = new String();
+        for(Tag tag : post.getTags()){
+            tags+=tag.getName();
+            tags+=" ";
+        }
+        model.addAttribute("tags",tags);
         return "post-form";
     }
 

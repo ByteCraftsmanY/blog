@@ -34,12 +34,8 @@
         <br/>
         <br/>
 
-        <label class="input-label" for="tags-string">Tags</label>
-        <span th:each="tag : *{tags}">
-                    <span th:text="${tag.name}">
-                    </span> &nbsp;
-                </span>
-        <input class="input-field" id="tags-string" name="tags-string" type="text"/>
+        <label class="input-label" for="tag-string">Tags</label>
+        <input class="input-field" id="tag-string" th:value="${tags}" name="tag-string" type="text"/>
         <span class="example-txt">example: #Java</span>
         <br/>
         <br/>
