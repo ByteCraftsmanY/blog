@@ -4,7 +4,6 @@ package com.yogesh.blog.controllers;
 import com.yogesh.blog.entities.*;
 import com.yogesh.blog.services.PostService;
 import com.yogesh.blog.services.TagService;
-import com.yogesh.blog.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,65 +21,56 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
     private final TagService tagService;
-    private final UserService userService;
 
     @Autowired
-    public PostController(PostService postService, TagService tagService, UserService userService) {
+    public PostController(PostService postService, TagService tagService) {
         this.postService = postService;
         this.tagService = tagService;
-        this.userService = userService;
     }
 
     @GetMapping("/")
     String getPostsWithCriteria(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
-                                @RequestParam(name = "limit", defaultValue = "5", required = false) Integer limit,
+                                @RequestParam(name = "size", defaultValue = "2", required = false) Integer size,
                                 @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
                                 @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
-                                @RequestParam(name = "search", required = false) String keyword,
+                                @RequestParam(name = "search-keyword", required = false) String keyword,
                                 @RequestParam(name = "filter", defaultValue = "false", required = false) Boolean filter,
-                                @RequestParam(name = "tags", required = false) String tags,
                                 @RequestParam(name = "start-date", required = false) String startDate,
                                 @RequestParam(name = "end-date", required = false) String endDate,
-                                @RequestParam(name = "author", defaultValue = "", required = false) String author, Model model) {
+                                Model model) {
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
         List<Post> posts;
-        List<User> users = userService.findAllUsers();
+
+        if (startDate == null || startDate.length() == 0) {
+            startDate = "1970-01-01";
+        }
+        if (endDate == null || endDate.length() == 0) {
+            endDate = LocalDate.now().toString();
+        }
+        startDateTime = LocalDate.parse(startDate).atStartOfDay();
+        endDateTime = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
 
         if (page <= 0) {
             page = 0;
         }
-        if (keyword != null) {
-            posts = postService.findPostsHavingKeyword(keyword);
-        } else if (filter) {
-            if (startDate == null || startDate.length() == 0) {
-                startDate = "1970-01-01";
-            }
-            if (endDate == null || endDate.length() == 0) {
-                endDate = LocalDate.now().plusDays(1).toString();
-            }
-            startDateTime = LocalDate.parse(startDate).atStartOfDay();
-            endDateTime = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
-
-            List<String> tagListForSearch;
-            if (tags == null || tags.isEmpty()) {
-                tagListForSearch = new ArrayList<>();
-                for (Tag tag : tagService.findAllTags()) {
-                    tagListForSearch.add(tag.getName());
-                }
-            } else {
-                tagListForSearch = List.of(tags.split(" "));
-            }
-            posts = postService.findPostsWithCriteria(tagListForSearch, author, startDateTime, endDateTime);
-        } else {
-            posts = postService.findAllPost(sortingField, sortingOrder, page, limit);
+        if(filter){
+            posts = postService.findPostsByCriteria(keyword, startDateTime, endDateTime,sortingField, sortingOrder, page, size);
+        }
+        else {
+            posts = postService.findAllPost(sortingField, sortingOrder, page, size);
         }
         model.addAttribute("posts", posts);
         model.addAttribute("page", page);
-        model.addAttribute("limit", limit);
+        model.addAttribute("size", size);
         model.addAttribute("sortingField", sortingField);
         model.addAttribute("sortingOrder", sortingOrder);
-        model.addAttribute("users", users);
+
+        model.addAttribute("keyword",keyword);
+        model.addAttribute("startDate",startDate);
+        model.addAttribute("endDate",endDate);
+        model.addAttribute("filter",filter);
+
         return "home-page";
     }
 

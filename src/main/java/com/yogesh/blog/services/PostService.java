@@ -8,7 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 @Service
 public class PostService {
@@ -30,21 +30,29 @@ public class PostService {
     public List<Post> findAllPost(String sortingField, String sortingOrder, Integer page, Integer item) {
         Sort sort = Sort.by(sortingField);
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findAll(PageRequest.of(page,item,sort)).getContent();
+        return postRepository.findAll(PageRequest.of(page, item, sort)).getContent();
     }
 
     public void deletePostById(Integer id) {
         postRepository.deleteById(id);
     }
 
-    public List<Post> findPostsWithCriteria(List<String> tagList, String author, LocalDateTime startDateTime, LocalDateTime endDateTime){
-        return postRepository.findPostsWithCriteria(author,startDateTime,endDateTime,tagList);
+    public List<Post> findPostsByCriteria(String keyword, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
+        Sort sort = Sort.by(getDbTableFieldName(sortingField));
+        sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
+        return postRepository.findPostsByCriteria(keyword, startDateTime, endDateTime,PageRequest.of(page,size,sort));
     }
 
-    public List<Post> findPostsHavingKeyword(String keyword) {
-        Set<Post> posts = new HashSet<>();
-        posts.addAll(postRepository.findPostsHavingTag(keyword));
-        posts.addAll(postRepository.findPostsHavingKeyword(keyword));
-        return new ArrayList<>(posts);
+    private String getDbTableFieldName(String EntityFieldName) {
+        StringBuilder dbTableFieldName = new StringBuilder();
+        for (Character c : EntityFieldName.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                dbTableFieldName.append('_');
+                dbTableFieldName.append(Character.toLowerCase(c));
+            } else {
+                dbTableFieldName.append(c);
+            }
+        }
+        return dbTableFieldName.toString();
     }
 }
