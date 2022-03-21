@@ -3,6 +3,7 @@ package com.yogesh.blog.services;
 import com.yogesh.blog.entities.Post;
 import com.yogesh.blog.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -27,17 +28,17 @@ public class PostService {
         return postRepository.findById(id).orElse(null);
     }
 
-    public List<Post> findAllPost(String sortingField, String sortingOrder, Integer page, Integer item) {
+    public Page<Post> findAllPost(String sortingField, String sortingOrder, Integer page, Integer item) {
         Sort sort = Sort.by(sortingField);
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findAll(PageRequest.of(page, item, sort)).getContent();
+        return postRepository.findAll(PageRequest.of(page, item, sort));
     }
 
     public void deletePostById(Integer id) {
         postRepository.deleteById(id);
     }
 
-    public List<Post> findPostsByCriteria(String keyword, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
+    public Page<Post> findPostsByCriteria(String keyword, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getDbTableFieldName(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
         return postRepository.findPostsByCriteria(keyword, startDateTime, endDateTime,PageRequest.of(page,size,sort));

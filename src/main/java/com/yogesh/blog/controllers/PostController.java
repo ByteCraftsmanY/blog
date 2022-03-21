@@ -4,6 +4,7 @@ import com.yogesh.blog.entities.*;
 import com.yogesh.blog.services.PostService;
 import com.yogesh.blog.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +41,7 @@ public class PostController {
                                 Model model) {
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
-        List<Post> posts;
+        Page<Post> posts;
 
         if (startDate == null || startDate.length() == 0) {
             startDate = "1970-01-01";
@@ -60,7 +61,7 @@ public class PostController {
         else {
             posts = postService.findAllPost(sortingField, sortingOrder, page, size);
         }
-        model.addAttribute("posts", posts);
+        model.addAttribute("posts", posts.getContent());
         model.addAttribute("page", page);
         model.addAttribute("size", size);
         model.addAttribute("sortingField", sortingField);
@@ -70,6 +71,7 @@ public class PostController {
         model.addAttribute("startDate",startDate);
         model.addAttribute("endDate",endDate);
         model.addAttribute("filter",filter);
+        model.addAttribute("totalPages",posts.getTotalPages());
 
         return "home-page";
     }
@@ -121,12 +123,12 @@ public class PostController {
         Post post = postService.findPostById(id);
 
         model.addAttribute("post", post);
-        String tags = new String();
+        StringBuilder tags = new StringBuilder();
         for(Tag tag : post.getTags()){
-            tags+=tag.getName();
-            tags+=" ";
+            tags.append(tag.getName());
+            tags.append(" ");
         }
-        model.addAttribute("tags",tags);
+        model.addAttribute("tags", tags.toString());
         return "post-form";
     }
 

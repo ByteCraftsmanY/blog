@@ -11,7 +11,6 @@
 
     <form action="#" id="blog-post-form" method="post" th:action="@{/save-post}" th:object="${post}">
         <input th:field="*{id}" type="hidden">
-        <!--                <input th:field="*{tags}" type="hidden">--><!--Not working because form cannot send list-->
         <!--        <input th:field="*{excerpt}" type="hidden">-->
         <!--        <input th:field="*{author}" type="hidden">-->
         <input th:field="*{publishedAt}" type="hidden">

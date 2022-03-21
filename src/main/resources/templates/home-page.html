@@ -41,7 +41,6 @@
 
 <!--    Filter Form    -->
 <div class="option-form-container">
-    <span>Filter</span>
     <form th:href="@{/}">
         <input name="filter" type="hidden" value="true">
         <input name="page" th:value="${page}" type="hidden">
@@ -51,6 +50,7 @@
         <label for="search"></label>
         <input
                 id="search"
+                class="input-field"
                 name="search-keyword"
                 th:value="${keyword}"
                 placeholder="Search"
@@ -92,7 +92,7 @@
             </select>
         </label><br>
 
-        <input type="submit" value="submit">
+        <input type="submit" class="btn" value="submit">
     </form>
 </div>
 
@@ -154,8 +154,10 @@
 <footer>
     <nav class="nav-bar">
         <a class="nav-item" href="#"
+           th:if="${page} < ${totalPages} - 1"
            th:href="@{/(filter=${filter},page=${page} + 1,size=${size},sort-field=${sortingField},order=${sortingOrder},search-keyword=${keyword},start-date=${startDate},end-date=${endDate})}">Next &gt;</a>
         <a class="nav-item left-float-item" href="#"
+           th:if="${page} > 0"
            th:href="@{/(filter=${filter},page=${page} - 1,size=${size},sort-field=${sortingField},order=${sortingOrder},search-keyword=${keyword},start-date=${startDate},end-date=${endDate})}">&lt;
             Previous</a>
     </nav>
