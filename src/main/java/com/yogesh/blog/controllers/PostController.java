@@ -1,6 +1,5 @@
 package com.yogesh.blog.controllers;
 
-
 import com.yogesh.blog.entities.*;
 import com.yogesh.blog.services.PostService;
 import com.yogesh.blog.services.TagService;
@@ -16,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class PostController {
@@ -97,9 +97,12 @@ public class PostController {
         }
         List<Tag> tagList = new ArrayList<>();
         for(String tagName : tagString.split(" ")){
-            Tag tag = new Tag();
-            tag.setName(tagName);
-            tag.setCreatedAt(LocalDateTime.now());
+            Tag tag = tagService.findTagByName(tagName);
+            if(Objects.isNull(tag)){
+                tag = new Tag();
+                tag.setName(tagName);
+                tag.setCreatedAt(LocalDateTime.now());
+            }
             tagList.add(tag);
         }
         post.setTags(tagList);

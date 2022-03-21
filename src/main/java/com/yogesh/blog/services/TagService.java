@@ -16,6 +16,10 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
+    public Tag findTagByName(String tagName){
+        return tagRepository.findTagByName(tagName);
+    }
+
     public List<Tag> findAllTags() {
         return tagRepository.findAll();
     }
