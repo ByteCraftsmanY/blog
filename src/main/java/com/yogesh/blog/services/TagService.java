@@ -5,8 +5,6 @@ import com.yogesh.blog.repositories.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class TagService {
     private final TagRepository tagRepository;
@@ -16,11 +14,7 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    public Tag findTagByName(String tagName){
+    public Tag findTagByName(String tagName) {
         return tagRepository.findTagByName(tagName);
-    }
-
-    public List<Tag> findAllTags() {
-        return tagRepository.findAll();
     }
 }

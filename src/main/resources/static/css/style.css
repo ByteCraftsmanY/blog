@@ -206,10 +206,9 @@ table, th, td {
     border: 1px solid black;
 }
 
-.option-form-container{
+.option-form-container {
     margin: 1px 0;
     padding: 1em;
-    padding: 1px;
     border: 2px solid black;
     background-color: lightblue;
 }

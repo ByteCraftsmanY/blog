@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="US-ASCII" />
-    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <meta charset="US-ASCII"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <title>Comment form</title>
 </head>
 <body>
 <div class="form-container blog-post-form-container">
     <div class="form-header">Edit Comment</div>
 
-    <form action="#" th:action="@{/save-comment}" method="post" th:object="${comment}">
-        <input type="hidden" th:field="*{id}">
-        <input type="hidden" th:field="*{name}">
-        <input type="hidden" th:field="*{email}">
-        <input type="hidden" th:field="*{post}">
-        <input type="hidden" th:field="*{createdAt}">
-        <input type="hidden" th:field="*{updatedAt}">
+    <form action="#" method="post" th:action="@{/save-comment}" th:object="${comment}">
+        <input th:field="*{id}" type="hidden">
+        <input th:field="*{name}" type="hidden">
+        <input th:field="*{email}" type="hidden">
+        <input th:field="*{post}" type="hidden">
+        <input th:field="*{createdAt}" type="hidden">
+        <input th:field="*{updatedAt}" type="hidden">
 
-        <label for="comment" class="input-label">Title</label><br />
-        <input type="text" id="comment" class="input-field" name="comment" th:field="*{commentDescription}" required />
-        <br />
-        <br />
+        <label class="input-label" for="comment">Title</label><br/>
+        <input class="input-field" id="comment" name="comment" required th:field="*{content}" type="text"/>
+        <br/>
+        <br/>
 
-        <input class="btn" type="submit" value="UPDATE" />
+        <input class="btn" type="submit" value="UPDATE"/>
     </form>
 </div>
 </body>

@@ -9,7 +9,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class PostService {
@@ -38,22 +37,28 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    public Page<Post> findPostsByCriteria(String keyword, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
-        Sort sort = Sort.by(getDbTableFieldName(sortingField));
+    public Page<Post> findPostsByKeyword(String keyword, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
+        Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByCriteria(keyword, startDateTime, endDateTime,PageRequest.of(page,size,sort));
+        return postRepository.findPostsByKeyword(keyword, startDateTime, endDateTime, PageRequest.of(page, size, sort));
     }
 
-    private String getDbTableFieldName(String EntityFieldName) {
-        StringBuilder dbTableFieldName = new StringBuilder();
-        for (Character c : EntityFieldName.toCharArray()) {
+    public Page<Post> findPostsByDuration(LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
+        Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
+        sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
+        return postRepository.findPostsByDuration(startDateTime, endDateTime, PageRequest.of(page, size, sort));
+    }
+
+    private String getFieldNameForNativeQuery(String fieldName) {
+        StringBuilder nativeFiledName = new StringBuilder();
+        for (Character c : fieldName.toCharArray()) {
             if (Character.isUpperCase(c)) {
-                dbTableFieldName.append('_');
-                dbTableFieldName.append(Character.toLowerCase(c));
+                nativeFiledName.append('_');
+                nativeFiledName.append(Character.toLowerCase(c));
             } else {
-                dbTableFieldName.append(c);
+                nativeFiledName.append(c);
             }
         }
-        return dbTableFieldName.toString();
+        return nativeFiledName.toString();
     }
 }

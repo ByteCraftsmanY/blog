@@ -18,9 +18,9 @@ public class Comment {
     private String email;
 
     @Column(name = "comment")
-    private String commentDescription;
+    private String content;
 
-    @ManyToOne(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "post_id")
     private Post post;
 
@@ -34,10 +34,10 @@ public class Comment {
 
     }
 
-    public Comment(String name, String email, String commentDescription) {
+    public Comment(String name, String email, String content) {
         this.name = name;
         this.email = email;
-        this.commentDescription = commentDescription;
+        this.content = content;
     }
 
     public Integer getId() {
@@ -64,12 +64,12 @@ public class Comment {
         this.email = email;
     }
 
-    public String getCommentDescription() {
-        return commentDescription;
+    public String getContent() {
+        return content;
     }
 
-    public void setCommentDescription(String commentDescription) {
-        this.commentDescription = commentDescription;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Post getPost() {
@@ -96,16 +96,4 @@ public class Comment {
         this.updatedAt = updatedAt;
     }
 
-    @Override
-    public String toString() {
-        return "Comment{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", commentDescription='" + commentDescription + '\'' +
-                ", post=" + post +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
-    }
 }

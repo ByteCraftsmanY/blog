@@ -1,6 +1,8 @@
 package com.yogesh.blog.controllers;
 
-import com.yogesh.blog.entities.*;
+import com.yogesh.blog.entities.Comment;
+import com.yogesh.blog.entities.Post;
+import com.yogesh.blog.entities.Tag;
 import com.yogesh.blog.services.PostService;
 import com.yogesh.blog.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,35 +32,33 @@ public class PostController {
     }
 
     @GetMapping("/")
-    String getPostsWithCriteria(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
-                                @RequestParam(name = "size", defaultValue = "2", required = false) Integer size,
+    String getAllPosts(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
+                                @RequestParam(name = "size", defaultValue = "5", required = false) Integer size,
                                 @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
                                 @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
-                                @RequestParam(name = "search-keyword", required = false) String keyword,
-                                @RequestParam(name = "filter", defaultValue = "false", required = false) Boolean filter,
-                                @RequestParam(name = "start-date", required = false) String startDate,
-                                @RequestParam(name = "end-date", required = false) String endDate,
+                                @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
+                                @RequestParam(name = "start-date", defaultValue = "", required = false) String startDate,
+                                @RequestParam(name = "end-date", defaultValue = "", required = false) String endDate,
                                 Model model) {
+        Page<Post> posts;
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
-        Page<Post> posts;
+        boolean isDurationAvailable = !startDate.isEmpty() || !endDate.isEmpty();
 
-        if (startDate == null || startDate.length() == 0) {
+        if (startDate.isEmpty()) {
             startDate = "1970-01-01";
         }
-        if (endDate == null || endDate.length() == 0) {
+        if (endDate.isEmpty()) {
             endDate = LocalDate.now().toString();
         }
         startDateTime = LocalDate.parse(startDate).atStartOfDay();
         endDateTime = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
 
-        if (page <= 0) {
-            page = 0;
-        }
-        if(filter){
-            posts = postService.findPostsByCriteria(keyword, startDateTime, endDateTime,sortingField, sortingOrder, page, size);
-        }
-        else {
+        if (!keyword.isEmpty()) {
+            posts = postService.findPostsByKeyword(keyword, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (isDurationAvailable) {
+            posts = postService.findPostsByDuration(startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else {
             posts = postService.findAllPost(sortingField, sortingOrder, page, size);
         }
         model.addAttribute("posts", posts.getContent());
@@ -66,13 +66,10 @@ public class PostController {
         model.addAttribute("size", size);
         model.addAttribute("sortingField", sortingField);
         model.addAttribute("sortingOrder", sortingOrder);
-
-        model.addAttribute("keyword",keyword);
-        model.addAttribute("startDate",startDate);
-        model.addAttribute("endDate",endDate);
-        model.addAttribute("filter",filter);
-        model.addAttribute("totalPages",posts.getTotalPages());
-
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("totalPages", posts.getTotalPages());
         return "home-page";
     }
 
@@ -89,8 +86,7 @@ public class PostController {
     }
 
     @PostMapping("save-post")
-    String savePost(@ModelAttribute("post") Post post,
-                    @RequestParam(name = "tag-string") String tagString) {
+    String savePost(@ModelAttribute("post") Post post, @RequestParam(name = "tag-string") String tagString) {
         if (post.getCreatedAt() == null) {
             post.setCreatedAt(LocalDateTime.now());
             post.setPublishedAt(LocalDateTime.now());
@@ -98,9 +94,9 @@ public class PostController {
             post.setUpdatedAt(LocalDateTime.now());
         }
         List<Tag> tagList = new ArrayList<>();
-        for(String tagName : tagString.split(" ")){
+        for (String tagName : tagString.split(" ")) {
             Tag tag = tagService.findTagByName(tagName);
-            if(Objects.isNull(tag)){
+            if (Objects.isNull(tag)) {
                 tag = new Tag();
                 tag.setName(tagName);
                 tag.setCreatedAt(LocalDateTime.now());
@@ -119,15 +115,13 @@ public class PostController {
     }
 
     @GetMapping("edit-post")
-    String fetchPostForUpdate(@RequestParam("id") Integer id, Model model) {
+    String getPostForUpdate(@RequestParam("id") Integer id, Model model) {
         Post post = postService.findPostById(id);
-
-        model.addAttribute("post", post);
         StringBuilder tags = new StringBuilder();
-        for(Tag tag : post.getTags()){
-            tags.append(tag.getName());
-            tags.append(" ");
+        for (Tag tag : post.getTags()) {
+            tags.append(tag.getName()).append(" ");
         }
+        model.addAttribute("post", post);
         model.addAttribute("tags", tags.toString());
         return "post-form";
     }
