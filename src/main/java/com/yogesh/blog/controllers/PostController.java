@@ -33,17 +33,21 @@ public class PostController {
 
     @GetMapping("/")
     String getAllPosts(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
-                                @RequestParam(name = "size", defaultValue = "5", required = false) Integer size,
-                                @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
-                                @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
-                                @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
-                                @RequestParam(name = "start-date", defaultValue = "", required = false) String startDate,
-                                @RequestParam(name = "end-date", defaultValue = "", required = false) String endDate,
-                                Model model) {
+                       @RequestParam(name = "size", defaultValue = "5", required = false) Integer size,
+                       @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
+                       @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
+                       @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
+                       @RequestParam(name = "start-date", defaultValue = "", required = false) String startDate,
+                       @RequestParam(name = "end-date", defaultValue = "", required = false) String endDate,
+                       @RequestParam(name = "author", defaultValue = "", required = false) String author,
+                       @RequestParam(name = "selected-tags", defaultValue = "", required = false) List<String> selectedTags,
+                       Model model) {
         Page<Post> posts;
+        List<String> authors;
+        List<String> tags;
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
-        boolean isDurationAvailable = !startDate.isEmpty() || !endDate.isEmpty();
+        boolean isPublishedDateDurationAvailable = !startDate.isEmpty() || !endDate.isEmpty();
 
         if (startDate.isEmpty()) {
             startDate = "1970-01-01";
@@ -54,14 +58,31 @@ public class PostController {
         startDateTime = LocalDate.parse(startDate).atStartOfDay();
         endDateTime = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
 
-        if (!keyword.isEmpty()) {
-            posts = postService.findPostsByKeyword(keyword, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-        } else if (isDurationAvailable) {
-            posts = postService.findPostsByDuration(startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        if (!keyword.isEmpty() && !author.isEmpty() && !selectedTags.isEmpty()) {
+            posts = postService.findPostsByKeywordAndTagAndAuthorAndPublishedDateDuration(keyword, author, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!keyword.isEmpty() && !author.isEmpty()) {
+            posts = postService.findPostsByKeywordAndAuthorAndPublishedDateDuration(keyword, author, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!keyword.isEmpty() && !selectedTags.isEmpty()) {
+            posts = postService.findPostsByKeywordAndTagsAndPublishedDateDuration(keyword, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!keyword.isEmpty()) {
+            posts = postService.findPostsByKeywordAndPublishedDateDuration(keyword, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!author.isEmpty() && !selectedTags.isEmpty()) {
+            posts = postService.findPostByAuthorAndTagsAndPublishedDateDuration(author, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!author.isEmpty()) {
+            posts = postService.findPostsByAuthorAndPublishedDateDuration(author, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!selectedTags.isEmpty()) {
+            posts = postService.findPostByTagsAndPublishedDateDuration(selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (isPublishedDateDurationAvailable) {
+            posts = postService.findPostsByPublishedDateDuration(startDateTime, endDateTime, sortingField, sortingOrder, page, size);
         } else {
             posts = postService.findAllPost(sortingField, sortingOrder, page, size);
         }
+        authors = postService.findAllAuthors();
+        tags = tagService.findAllTagNames();
+
         model.addAttribute("posts", posts.getContent());
+        model.addAttribute("authors", authors);
+        model.addAttribute("tags", tags);
         model.addAttribute("page", page);
         model.addAttribute("size", size);
         model.addAttribute("sortingField", sortingField);
@@ -69,6 +90,8 @@ public class PostController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
+        model.addAttribute("author", author);
+        model.addAttribute("selectedTags", selectedTags);
         model.addAttribute("totalPages", posts.getTotalPages());
         return "home-page";
     }
