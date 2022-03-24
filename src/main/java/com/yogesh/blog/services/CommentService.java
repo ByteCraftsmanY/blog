@@ -1,6 +1,6 @@
 package com.yogesh.blog.services;
 
-import com.yogesh.blog.entities.Comment;
+import com.yogesh.blog.model.Comment;
 import com.yogesh.blog.repositories.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

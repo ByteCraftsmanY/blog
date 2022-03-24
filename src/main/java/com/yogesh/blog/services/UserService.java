@@ -1,6 +1,6 @@
 package com.yogesh.blog.services;
 
-import com.yogesh.blog.entities.User;
+import com.yogesh.blog.model.User;
 import com.yogesh.blog.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

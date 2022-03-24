@@ -1,6 +1,6 @@
 package com.yogesh.blog.repositories;
 
-import com.yogesh.blog.entities.Tag;
+import com.yogesh.blog.model.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

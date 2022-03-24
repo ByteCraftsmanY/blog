@@ -8,10 +8,16 @@
 <body>
 <div class="form-container sign-in-form-container">
     <div class="form-header">Login</div>
-    <form action="#" th:action="@{/check-user}" th:object="${user}" method="post">
-        <label for="id" class="input-label" >User Name</label>
-        <input type="text" id="id" name="id" class="input-field" th:field="*{name}" required />
-        <br />
+
+
+    <form action="#" th:action="@{/auth-user}"
+    method="post">
+        <!--          th:object="${user}"-->
+        <label for="username" class="input-label" >User Name</label>
+        <input type="text" id="username" name="username" class="input-field"
+               required />
+    <!--               th:field="*{name}"-->
+    <br />
         <br />
 
         <label for="password" class="input-label" >Password</label>
@@ -20,12 +26,13 @@
                 id="password"
                 name="password"
                 class="input-field"
-                th:field="*{password}"
                 required
-        />
-        <br /><br />
+    />
+    <!--                th:field="*{password}"-->
+    <br /><br />
 
-<!--        <div class="msg error-msg">${responseMsg}</div>-->
+        <div th:if="${param.error != null}" class="msg error-msg">Wrong email or password</div>
+    <div th:if="${param.logout != null}" class="msg success-msg">You have been logged out</div>
 
         <input class="btn" type="submit" value="LOGIN" />
         <p class="msg auth-msg">
