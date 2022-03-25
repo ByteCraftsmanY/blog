@@ -5,6 +5,7 @@ import com.yogesh.blog.services.PostService;
 import com.yogesh.blog.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +23,6 @@ public class PostController {
     private final PostService postService;
     private final TagService tagService;
 
-
     @Autowired
     public PostController(PostService postService, TagService tagService) {
         this.postService = postService;
@@ -36,6 +36,7 @@ public class PostController {
         List<String> tags;
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
+        User activeUser = getLoggedInUser() != null ? getLoggedInUser().getUser() : null;
         boolean isPublishedDateDurationAvailable = !startDate.isEmpty() || !endDate.isEmpty();
 
         if (startDate.isEmpty()) {
@@ -47,29 +48,25 @@ public class PostController {
         startDateTime = LocalDate.parse(startDate).atStartOfDay();
         endDateTime = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
 
-//        if (!keyword.isEmpty() && !author.isEmpty() && !selectedTags.isEmpty()) {
-//            posts = postService.findPostsByKeywordAndTagAndAuthorAndPublishedDateDuration(keyword, author, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-//        } else if (!keyword.isEmpty() && !author.isEmpty()) {
-//            posts = postService.findPostsByKeywordAndAuthorAndPublishedDateDuration(keyword, author, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-//        } else
-//        if (!keyword.isEmpty() && !selectedTags.isEmpty()) {
-//            posts = postService.findPostsByKeywordAndTagsAndPublishedDateDuration(keyword, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-//        }
-//        else
-//        if (!keyword.isEmpty()) {
-//            posts = postService.findPostsByKeywordAndPublishedDateDuration(keyword, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-//        }
-//        else if (!author.isEmpty() && !selectedTags.isEmpty()) {
-//            posts = postService.findPostByAuthorAndTagsAndPublishedDateDuration(author, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-//        } else if (!author.isEmpty()) {
-//            posts = postService.findPostsByAuthorAndPublishedDateDuration(author, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-//        } else if (!selectedTags.isEmpty()) {
-//            posts = postService.findPostByTagsAndPublishedDateDuration(selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-//        } else if (isPublishedDateDurationAvailable) {
-//            posts = postService.findPostsByPublishedDateDuration(startDateTime, endDateTime, sortingField, sortingOrder, page, size);
-//        } else {
-        posts = postService.findAllPost(sortingField, sortingOrder, page, size);
-//        }
+        if (!keyword.isEmpty() && !author.isEmpty() && !selectedTags.isEmpty()) {
+            posts = postService.findPostsByKeywordAndAuthorAndTagAndPublishedDateDuration(keyword, author, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!keyword.isEmpty() && !author.isEmpty()) {
+            posts = postService.findPostsByKeywordAndAuthorAndPublishedDateDuration(keyword, author, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!keyword.isEmpty() && !selectedTags.isEmpty()) {
+            posts = postService.findPostsByKeywordAndTagsAndPublishedDateDuration(keyword, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!keyword.isEmpty()) {
+            posts = postService.findPostsByKeywordAndPublishedDateDuration(keyword, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!author.isEmpty() && !selectedTags.isEmpty()) {
+            posts = postService.findPostByAuthorAndTagsAndPublishedDateDuration(author, selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!author.isEmpty()) {
+            posts = postService.findPostsByAuthorAndPublishedDateDuration(author, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (!selectedTags.isEmpty()) {
+            posts = postService.findPostByTagsAndPublishedDateDuration(selectedTags, startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else if (isPublishedDateDurationAvailable) {
+            posts = postService.findPostsByPublishedDateDuration(startDateTime, endDateTime, sortingField, sortingOrder, page, size);
+        } else {
+            posts = postService.findAllPost(sortingField, sortingOrder, page, size);
+        }
         authors = postService.findAllAuthors();
         tags = tagService.findAllTagNames();
 
@@ -86,20 +83,24 @@ public class PostController {
         model.addAttribute("author", author);
         model.addAttribute("selectedTags", selectedTags);
         model.addAttribute("totalPages", posts.getTotalPages());
-        model.addAttribute("user", getActiveUser());
+        model.addAttribute("user", activeUser);
         return "home-page";
     }
 
     @GetMapping("show-post")
     String getPostById(@RequestParam("id") Integer id, Model model) {
         Post post = postService.findPostById(id);
-
+        User user = null;
+        UserDetail userDetail = getLoggedInUser();
+        if(!Objects.isNull(userDetail)){
+            user = userDetail.getUser();
+        }
         Comment comment = new Comment();
         comment.setPost(post);
 
         model.addAttribute("post", post);
         model.addAttribute("comment", comment);
-        model.addAttribute("user", getActiveUser());
+        model.addAttribute("user", user);
         return "post";
     }
 
@@ -108,11 +109,10 @@ public class PostController {
         if (post.getCreatedAt() == null) {
             post.setCreatedAt(LocalDateTime.now());
             post.setPublishedAt(LocalDateTime.now());
+            post.setUser(Objects.requireNonNull(getLoggedInUser()).getUser());
         } else {
             post.setUpdatedAt(LocalDateTime.now());
         }
-        post.setUser(getActiveUser());
-
         Set<Tag> tags = new HashSet<>();
         for (String tagName : tagString.split(" ")) {
             Tag tag = tagService.findTagByName(tagName);
@@ -130,6 +130,10 @@ public class PostController {
 
     @GetMapping("delete-post")
     String deletePostById(@RequestParam("id") Integer id) {
+        Post post = postService.findPostById(id);
+        if (!isAuthorizedUserForPostOperation(post)) {
+            return "error";
+        }
         postService.deletePostById(id);
         return "redirect:/";
     }
@@ -137,6 +141,9 @@ public class PostController {
     @GetMapping("edit-post")
     String getPostForUpdate(@RequestParam("id") Integer id, Model model) {
         Post post = postService.findPostById(id);
+        if (!isAuthorizedUserForPostOperation(post)) {
+            return "error";
+        }
         StringBuilder tags = new StringBuilder();
         for (Tag tag : post.getTags()) {
             tags.append(tag.getName()).append(" ");
@@ -152,13 +159,16 @@ public class PostController {
         return "post-form";
     }
 
-    private User getActiveUser() {
-        User user = null;
+    private UserDetail getLoggedInUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetail) {
-            UserDetail userDetail = (UserDetail) principal;
-            user = userDetail.getUser();
+            return (UserDetail) principal;
         }
-        return user;
+        return null;
+    }
+
+    private Boolean isAuthorizedUserForPostOperation(Post post) {
+        UserDetail activeUserDetail = getLoggedInUser();
+        return activeUserDetail == null || activeUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || Objects.equals(activeUserDetail.getUser().getId(), post.getUser().getId());
     }
 }

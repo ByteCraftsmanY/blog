@@ -10,7 +10,7 @@
 <body>
 <header class="nav-container">
     <nav class="nav-bar">
-        <a class="nav-item" th:if="${user==null}" href="#" th:href="@{/user/sign-in}">Login</a>
+        <a class="nav-item" href="#" th:href="@{/user/sign-in}" th:if="${user==null}">Login</a>
         <a class="nav-item left-float-item" href="#" th:href="@{/}">My Blog Application</a>
     </nav>
 </header>
@@ -19,7 +19,7 @@
     <div class="form-header">
         <h1 th:text="${post.title}"></h1>
         <p>
-            <!--            <span th:text="${post.author}"></span>,-->
+            <span th:text="${post.user.name}"></span>,
             <span th:text="${post.publishedAt}"></span>
         </p>
         <p>
@@ -73,12 +73,12 @@
             <td th:if="${comment.user}" th:text="${comment.user.name}"></td>
             <td>
                 <a th:href="@{delete-comment(id=${comment.id},post-id=${post.id})}"
-                   th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') ||  (#authorization.expression('hasAnyRole(''ROLE_AUTHOR'',''ROLE_USER'')') && (comment.user!= null && (comment.user.id == user.id)))}">Delete</a>
+                   th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') ||  (#authorization.expression('hasAnyRole(''ROLE_AUTHOR'',''ROLE_USER'')') && (comment.user!= null && ( user!= null) &&  (comment.user.id == user.id)))}">Delete</a>
             </td>
 
             <td>
                 <a th:href="@{update-comment(id=${comment.id})}"
-                   th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') ||  (#authorization.expression('hasAnyRole(''ROLE_AUTHOR'',''ROLE_USER'')') && (comment.user!= null && (comment.user.id == user.id)))}">update</a>
+                   th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') ||  (#authorization.expression('hasAnyRole(''ROLE_AUTHOR'',''ROLE_USER'')') && (comment.user!= null && ( user != null )&&(comment.user.id == user.id)))}">update</a>
             </td>
         </tr>
         </thead>

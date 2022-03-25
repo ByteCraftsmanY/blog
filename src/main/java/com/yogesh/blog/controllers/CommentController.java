@@ -1,16 +1,17 @@
 package com.yogesh.blog.controllers;
 
 import com.yogesh.blog.model.Comment;
-import com.yogesh.blog.model.User;
 import com.yogesh.blog.model.UserDetail;
 import com.yogesh.blog.services.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Controller
 public class CommentController {
@@ -25,7 +26,9 @@ public class CommentController {
     public String saveComment(@ModelAttribute("comment") Comment comment) {
         if (comment.getCreatedAt() == null) {
             comment.setCreatedAt(LocalDateTime.now());
-            comment.setUser(getActiveUser());
+            if (!Objects.isNull(getLoggedInUser())) {
+                comment.setUser(getLoggedInUser().getUser());
+            }
         } else {
             comment.setUpdatedAt(LocalDateTime.now());
         }
@@ -35,6 +38,10 @@ public class CommentController {
 
     @GetMapping("delete-comment")
     public String deleteCommentById(@RequestParam("id") Integer id, @RequestParam("post-id") String postId) {
+        Comment comment = commentService.findCommentById(id);
+        if (!isAuthorizedUserForCommentOperation(comment)) {
+            return "error";
+        }
         commentService.deleteCommentById(id);
         return "redirect:/show-post?id=" + postId;
     }
@@ -42,16 +49,23 @@ public class CommentController {
     @GetMapping("update-comment")
     public String updateCommentById(@RequestParam("id") Integer id, Model model) {
         Comment comment = commentService.findCommentById(id);
+        if (!isAuthorizedUserForCommentOperation(comment)) {
+            return "error";
+        }
         model.addAttribute("comment", comment);
         return "comment-form";
     }
 
-    private User getActiveUser() {
-        User user = null;
+    private UserDetail getLoggedInUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetail userDetail) {
-            user = userDetail.getUser();
+        if (principal instanceof UserDetail) {
+            return (UserDetail) principal;
         }
-        return user;
+        return null;
+    }
+
+    private Boolean isAuthorizedUserForCommentOperation(Comment comment) {
+        UserDetail activeUserDetail = getLoggedInUser();
+        return activeUserDetail == null || activeUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || Objects.equals(activeUserDetail.getUser().getId(), comment.getUser().getId());
     }
 }
