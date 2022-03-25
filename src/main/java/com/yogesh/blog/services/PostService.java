@@ -43,55 +43,49 @@ public class PostService {
     public Page<Post> findPostsByKeywordAndAuthorAndTagAndPublishedDateDuration(String keyword, String author, List<String> tags, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByKeywordAndAuthorAndTagAndPublishedDateDuration(keyword, author, tags, startDateTime, endDateTime, PageRequest.of(page, size, sort));
+        return postRepository.findByKeywordAndAuthorAndTagAndPublishedDateDuration(keyword, author, tags, startDateTime, endDateTime, PageRequest.of(page, size, sort));
     }
 
     public Page<Post> findPostsByKeywordAndAuthorAndPublishedDateDuration(String keyword, String author, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByKeywordAndAuthorAndPublishedDateDuration(keyword, author, startDateTime, endDateTime, PageRequest.of(page, size, sort));
+        return postRepository.findByKeywordAndAuthorAndPublishedDateDuration(keyword, author, startDateTime, endDateTime, PageRequest.of(page, size, sort));
     }
 
     public Page<Post> findPostsByKeywordAndTagsAndPublishedDateDuration(String keyword, List<String> tags, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByKeywordAndTagsAndPublishedDateDuration(keyword, tags, startDateTime, endDateTime, PageRequest.of(page, size, sort));
+        return postRepository.findByKeywordAndTagsAndPublishedDateDuration(keyword, tags, startDateTime, endDateTime, PageRequest.of(page, size, sort));
     }
-//
-
 
     public Page<Post> findPostsByKeywordAndPublishedDateDuration(String keyword, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByKeywordAndPublishedDateDuration(keyword, startDateTime, endDateTime, PageRequest.of(page, size, sort));
+        return postRepository.findByKeywordAndPublishedDateDuration(keyword, startDateTime, endDateTime, PageRequest.of(page, size, sort));
     }
-
 
     public Page<Post> findPostByAuthorAndTagsAndPublishedDateDuration(String author, List<String> tags, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByAuthorAndTagsAndPublishedDateDuration(author, startDateTime, endDateTime, tags, PageRequest.of(page, size, sort));
+        return postRepository.findByAuthorAndTagsAndPublishedDateDuration(author, startDateTime, endDateTime, tags, PageRequest.of(page, size, sort));
     }
-
 
     public Page<Post> findPostsByAuthorAndPublishedDateDuration(String author, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByAuthorAndPublishedDateDuration(author, startDateTime, endDateTime, PageRequest.of(page, size, sort));
+        return postRepository.findByAuthorAndPublishedDateDuration(author, startDateTime, endDateTime, PageRequest.of(page, size, sort));
     }
-
 
     public Page<Post> findPostByTagsAndPublishedDateDuration(List<String> tags, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByTagsAndPublishedDateDuration(tags, startDateTime, endDateTime, PageRequest.of(page, size, sort));
+        return postRepository.findByTagsAndPublishedDateDuration(tags, startDateTime, endDateTime, PageRequest.of(page, size, sort));
     }
-
 
     public Page<Post> findPostsByPublishedDateDuration(LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {
         Sort sort = Sort.by(getFieldNameForNativeQuery(sortingField));
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
-        return postRepository.findPostsByPublishedDateDuration(startDateTime, endDateTime, PageRequest.of(page, size, sort));
+        return postRepository.findByPublishedDateDuration(startDateTime, endDateTime, PageRequest.of(page, size, sort));
     }
 
     private String getFieldNameForNativeQuery(String fieldName) {

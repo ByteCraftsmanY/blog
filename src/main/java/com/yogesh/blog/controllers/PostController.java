@@ -3,10 +3,9 @@ package com.yogesh.blog.controllers;
 import com.yogesh.blog.model.*;
 import com.yogesh.blog.services.PostService;
 import com.yogesh.blog.services.TagService;
+import com.yogesh.blog.services.UserPrincipalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,21 +21,33 @@ import java.util.*;
 public class PostController {
     private final PostService postService;
     private final TagService tagService;
+    private final UserPrincipalService userPrincipalService;
 
     @Autowired
-    public PostController(PostService postService, TagService tagService) {
+    public PostController(PostService postService, TagService tagService, UserPrincipalService userPrincipalService) {
         this.postService = postService;
         this.tagService = tagService;
+        this.userPrincipalService = userPrincipalService;
     }
 
     @GetMapping("/")
-    String getAllPosts(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page, @RequestParam(name = "size", defaultValue = "5", required = false) Integer size, @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder, @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword, @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField, @RequestParam(name = "start-date", defaultValue = "", required = false) String startDate, @RequestParam(name = "end-date", defaultValue = "", required = false) String endDate, @RequestParam(name = "author", defaultValue = "", required = false) String author, @RequestParam(name = "selected-tags", defaultValue = "", required = false) List<String> selectedTags, Model model) {
+    String getAllPosts(
+            @RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
+            @RequestParam(name = "size", defaultValue = "5", required = false) Integer size,
+            @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
+            @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
+            @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
+            @RequestParam(name = "start-date", defaultValue = "", required = false) String startDate,
+            @RequestParam(name = "end-date", defaultValue = "", required = false) String endDate,
+            @RequestParam(name = "author", defaultValue = "", required = false) String author,
+            @RequestParam(name = "selected-tags", defaultValue = "", required = false) List<String> selectedTags,
+            Model model) {
         Page<Post> posts;
         List<String> authors;
         List<String> tags;
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
-        User activeUser = getLoggedInUser() != null ? getLoggedInUser().getUser() : null;
+        User activeUser = null;
         boolean isPublishedDateDurationAvailable = !startDate.isEmpty() || !endDate.isEmpty();
 
         if (startDate.isEmpty()) {
@@ -70,6 +81,10 @@ public class PostController {
         authors = postService.findAllAuthors();
         tags = tagService.findAllTagNames();
 
+        UserPrincipal userPrincipal = userPrincipalService.getLoggedInUser();
+        if (!Objects.isNull(userPrincipal)) {
+            activeUser = userPrincipal.getUser();
+        }
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("authors", authors);
         model.addAttribute("tags", tags);
@@ -91,15 +106,11 @@ public class PostController {
     String getPostById(@RequestParam("id") Integer id, Model model) {
         Post post = postService.findPostById(id);
         User user = null;
-        UserDetail userDetail = getLoggedInUser();
-        if(!Objects.isNull(userDetail)){
-            user = userDetail.getUser();
+        UserPrincipal userPrincipal = userPrincipalService.getLoggedInUser();
+        if (!Objects.isNull(userPrincipal)) {
+            user = userPrincipal.getUser();
         }
-        Comment comment = new Comment();
-        comment.setPost(post);
-
         model.addAttribute("post", post);
-        model.addAttribute("comment", comment);
         model.addAttribute("user", user);
         return "post";
     }
@@ -109,7 +120,7 @@ public class PostController {
         if (post.getCreatedAt() == null) {
             post.setCreatedAt(LocalDateTime.now());
             post.setPublishedAt(LocalDateTime.now());
-            post.setUser(Objects.requireNonNull(getLoggedInUser()).getUser());
+            post.setUser(Objects.requireNonNull(userPrincipalService.getLoggedInUser()).getUser());
         } else {
             post.setUpdatedAt(LocalDateTime.now());
         }
@@ -131,7 +142,7 @@ public class PostController {
     @GetMapping("delete-post")
     String deletePostById(@RequestParam("id") Integer id) {
         Post post = postService.findPostById(id);
-        if (!isAuthorizedUserForPostOperation(post)) {
+        if (!userPrincipalService.isUserAuthorizedForPostOperation(post)) {
             return "error";
         }
         postService.deletePostById(id);
@@ -141,7 +152,7 @@ public class PostController {
     @GetMapping("edit-post")
     String getPostForUpdate(@RequestParam("id") Integer id, Model model) {
         Post post = postService.findPostById(id);
-        if (!isAuthorizedUserForPostOperation(post)) {
+        if (!userPrincipalService.isUserAuthorizedForPostOperation(post)) {
             return "error";
         }
         StringBuilder tags = new StringBuilder();
@@ -157,18 +168,5 @@ public class PostController {
     String showFormForNewPost(Model model) {
         model.addAttribute("post", new Post());
         return "post-form";
-    }
-
-    private UserDetail getLoggedInUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetail) {
-            return (UserDetail) principal;
-        }
-        return null;
-    }
-
-    private Boolean isAuthorizedUserForPostOperation(Post post) {
-        UserDetail activeUserDetail = getLoggedInUser();
-        return activeUserDetail == null || activeUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || Objects.equals(activeUserDetail.getUser().getId(), post.getUser().getId());
     }
 }

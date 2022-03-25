@@ -1,11 +1,13 @@
 package com.yogesh.blog.controllers;
 
 import com.yogesh.blog.model.Comment;
-import com.yogesh.blog.model.UserDetail;
+import com.yogesh.blog.model.Post;
+import com.yogesh.blog.model.User;
+import com.yogesh.blog.model.UserPrincipal;
 import com.yogesh.blog.services.CommentService;
+import com.yogesh.blog.services.PostService;
+import com.yogesh.blog.services.UserPrincipalService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,18 +18,22 @@ import java.util.Objects;
 @Controller
 public class CommentController {
     private final CommentService commentService;
+    private final PostService postService;
+    private final UserPrincipalService userPrincipalService;
 
     @Autowired
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, UserPrincipalService userPrincipalService, PostService postService) {
         this.commentService = commentService;
+        this.userPrincipalService = userPrincipalService;
+        this.postService = postService;
     }
 
     @PostMapping("save-comment")
     public String saveComment(@ModelAttribute("comment") Comment comment) {
         if (comment.getCreatedAt() == null) {
             comment.setCreatedAt(LocalDateTime.now());
-            if (!Objects.isNull(getLoggedInUser())) {
-                comment.setUser(getLoggedInUser().getUser());
+            if (!Objects.isNull(userPrincipalService.getLoggedInUser())) {
+                comment.setUser(userPrincipalService.getLoggedInUser().getUser());
             }
         } else {
             comment.setUpdatedAt(LocalDateTime.now());
@@ -39,7 +45,7 @@ public class CommentController {
     @GetMapping("delete-comment")
     public String deleteCommentById(@RequestParam("id") Integer id, @RequestParam("post-id") String postId) {
         Comment comment = commentService.findCommentById(id);
-        if (!isAuthorizedUserForCommentOperation(comment)) {
+        if (!userPrincipalService.isUserAuthorizedForCommentOperation(comment)) {
             return "error";
         }
         commentService.deleteCommentById(id);
@@ -49,23 +55,25 @@ public class CommentController {
     @GetMapping("update-comment")
     public String updateCommentById(@RequestParam("id") Integer id, Model model) {
         Comment comment = commentService.findCommentById(id);
-        if (!isAuthorizedUserForCommentOperation(comment)) {
+        if (!userPrincipalService.isUserAuthorizedForCommentOperation(comment)) {
             return "error";
         }
         model.addAttribute("comment", comment);
         return "comment-form";
     }
 
-    private UserDetail getLoggedInUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetail) {
-            return (UserDetail) principal;
+    @GetMapping("new-comment")
+    public String showFormForNewComment(@RequestParam("post-id") Integer postId, Model model) {
+        User user = null;
+        Post post = postService.findPostById(postId);
+        UserPrincipal userPrincipal = userPrincipalService.getLoggedInUser();
+        if (!Objects.isNull(userPrincipal)) {
+            user = userPrincipal.getUser();
         }
-        return null;
-    }
-
-    private Boolean isAuthorizedUserForCommentOperation(Comment comment) {
-        UserDetail activeUserDetail = getLoggedInUser();
-        return activeUserDetail == null || activeUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || Objects.equals(activeUserDetail.getUser().getId(), comment.getUser().getId());
+        Comment comment = new Comment();
+        comment.setPost(post);
+        comment.setUser(user);
+        model.addAttribute("comment", comment);
+        return "comment-form";
     }
 }
