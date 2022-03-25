@@ -1,7 +1,7 @@
 package com.yogesh.blog.services;
 
 import com.yogesh.blog.model.User;
-import com.yogesh.blog.model.UserDetail;
+import com.yogesh.blog.model.UserPrincipal;
 import com.yogesh.blog.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +24,6 @@ public class UserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user =  userRepository.findUserByName(username);
         user.orElseThrow(()->new UsernameNotFoundException("This user name is not found"));
-        return new UserDetail(user.get());
+        return new UserPrincipal(user.get());
     }
 }
