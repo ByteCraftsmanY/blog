@@ -7,6 +7,7 @@ import com.yogesh.blog.models.User;
 import com.yogesh.blog.services.RoleService;
 import com.yogesh.blog.services.UserPrincipalService;
 import com.yogesh.blog.services.UserService;
+import com.yogesh.blog.utils.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,9 +15,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("users")
@@ -27,7 +26,8 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserController(UserService userService, RoleService roleService, UserPrincipalService userPrincipalService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, RoleService roleService,
+                          UserPrincipalService userPrincipalService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
         this.userPrincipalService = userPrincipalService;
@@ -77,6 +77,17 @@ public class UserController {
     public User updateUserById(@PathVariable Integer id, @RequestBody Map<Object, Object> userFields) {
         User user = userService.findUserById(id).orElseThrow(() -> new EntityNotFoundException("User not found."));
         userFields.forEach((key, value) -> {
+            if (key.equals("roles")) {
+                List<Role> userRoles = new ArrayList<>();
+                Set<String> uniqueUserRoleNames = new Utility().getUniqueStringValuesForUpdatingObjects((ArrayList<?>) value);
+                uniqueUserRoleNames.forEach(uniqueRoleName -> {
+                    Role role = roleService.findRoleByName(uniqueRoleName).orElseGet(Role::new);
+                    role.setName(uniqueRoleName);
+                    userRoles.add(role);
+                });
+                user.setRoles(userRoles);
+                return;
+            }
             Field field = ReflectionUtils.findField(User.class, (String) key);
             Objects.requireNonNull(field).setAccessible(true);
             ReflectionUtils.setField(field, user, value);

@@ -6,6 +6,7 @@ import com.yogesh.blog.models.*;
 import com.yogesh.blog.services.PostService;
 import com.yogesh.blog.services.TagService;
 import com.yogesh.blog.services.UserPrincipalService;
+import com.yogesh.blog.utils.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
@@ -16,7 +17,6 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/posts")
@@ -33,8 +33,8 @@ public class PostController {
     }
 
     @GetMapping
-    List<Post> getAllPosts(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
-                           @RequestParam(name = "size", defaultValue = "5", required = false) Integer size,
+    Page<Post> getAllPosts(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
+                           @RequestParam(name = "size", defaultValue = "10", required = false) Integer size,
                            @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
                            @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
                            @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
@@ -75,7 +75,7 @@ public class PostController {
         } else {
             posts = postService.findAllPost(sortingField, sortingOrder, page, size);
         }
-        return posts.getContent();
+        return posts;
     }
 
     @GetMapping("{id}")
@@ -93,11 +93,11 @@ public class PostController {
             tagNames.add(name);
         }
         Set<String> uniqueTagNames = new HashSet<>(tagNames);
-        postTags = uniqueTagNames.stream().map(uniqueTagName -> {
+        uniqueTagNames.forEach(uniqueTagName -> {
             Tag tag = tagService.findTagByName(uniqueTagName).orElseGet(Tag::new);
             tag.setName(uniqueTagName);
-            return tag;
-        }).collect(Collectors.toList());
+            postTags.add(tag);
+        });
         post.setCreatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
         post.setUser(Objects.requireNonNull(userPrincipalService.getUserPrincipal()).getUser());
@@ -116,15 +116,23 @@ public class PostController {
         postService.deletePostById(id);
     }
 
+    @Secured({"ROLE_ADMIN", "ROLE_AUTHOR"})
     @PatchMapping("{id}")
     public Post updatePostById(@PathVariable Integer id, @RequestBody Map<Object, Object> postFields) {
         Post post = postService.findPostById(id).orElseThrow(() -> new EntityNotFoundException("Post Not Found."));
         if (!userPrincipalService.isUserAuthorizedForPostOperation(post)) {
             throw new UnauthorizedException("You are not authorized to do this task.");
         }
-//        ToDo: Solve Tag update problem
         postFields.forEach((key, value) -> {
             if (key.equals("tags")) {
+                List<Tag> postTags = new ArrayList<>();
+                Set<String> uniquePostTagNames = new Utility().getUniqueStringValuesForUpdatingObjects((ArrayList<?>) value);
+                uniquePostTagNames.forEach(uniqueTagName -> {
+                    Tag tag = tagService.findTagByName(uniqueTagName).orElseGet(Tag::new);
+                    tag.setName(uniqueTagName);
+                    postTags.add(tag);
+                });
+                post.setTags(postTags);
                 return;
             }
             Field field = ReflectionUtils.findField(Post.class, (String) key);
