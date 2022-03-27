@@ -1,5 +1,6 @@
-package com.yogesh.blog.model;
+package com.yogesh.blog.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,9 +24,11 @@ public class Tag {
     private String name;
 
     @Column(name = "created_at")
+    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
     private LocalDateTime updatedAt;
 
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)

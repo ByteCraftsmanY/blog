@@ -1,6 +1,6 @@
 package com.yogesh.blog.repositories;
 
-import com.yogesh.blog.model.Post;
+import com.yogesh.blog.models.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,9 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
-    @Query(nativeQuery = true, value = "select u.name from users u join user_roles ur on u.id = ur.user_id join roles r on r.id = ur.role_id and r.name = 'ROLE_AUTHOR'")
-    List<String> findAllAuthors();
-
     @Query(nativeQuery = true, value = "select * from posts p where (p.title like %?1% or p.excerpt like %?1% or p.content like %?1%) and p.user_id in (select u.id from users u where u.name = ?2) and p.id in (select pt.post_id from post_tags pt where pt.tag_id in (select t.id from tags t where t.name in (?3))) and p.published_at between ?4 and ?5")
     Page<Post> findByKeywordAndAuthorAndTagAndPublishedDateDuration(String keyword, String author, List<String> tags, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 

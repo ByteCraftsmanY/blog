@@ -1,15 +1,10 @@
 package com.yogesh.blog.repositories;
 
-import com.yogesh.blog.model.Tag;
+import com.yogesh.blog.models.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, Integer> {
-    @Query("select tag from Tag tag where tag.name = :tagName")
-    Tag findTagByName(String tagName);
-
-    @Query("select tag.name from Tag tag")
-    List<String> findAllTagNames();
+    Optional<Tag> findTagByName(String tagName);
 }

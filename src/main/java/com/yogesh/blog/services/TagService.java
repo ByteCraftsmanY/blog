@@ -1,11 +1,11 @@
 package com.yogesh.blog.services;
 
-import com.yogesh.blog.model.Tag;
+import com.yogesh.blog.models.Tag;
 import com.yogesh.blog.repositories.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TagService {
@@ -16,11 +16,7 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    public Tag findTagByName(String tagName) {
+    public Optional<Tag> findTagByName(String tagName) {
         return tagRepository.findTagByName(tagName);
-    }
-
-    public List<String> findAllTagNames(){
-        return tagRepository.findAllTagNames();
     }
 }

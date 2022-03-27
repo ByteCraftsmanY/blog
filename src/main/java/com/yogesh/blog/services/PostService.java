@@ -1,6 +1,6 @@
 package com.yogesh.blog.services;
 
-import com.yogesh.blog.model.Post;
+import com.yogesh.blog.models.Post;
 import com.yogesh.blog.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService {
@@ -18,26 +19,22 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public void savePost(Post post) {
-        postRepository.save(post);
+    public Post savePost(Post post) {
+        return postRepository.save(post);
     }
 
     public void deletePostById(Integer id) {
         postRepository.deleteById(id);
     }
 
-    public Post findPostById(Integer id) {
-        return postRepository.findById(id).orElse(null);
+    public Optional<Post> findPostById(Integer id) {
+        return postRepository.findById(id);
     }
 
     public Page<Post> findAllPost(String sortingField, String sortingOrder, Integer page, Integer item) {
         Sort sort = Sort.by(sortingField);
         sort = sortingOrder.equals("asc") ? sort.ascending() : sort.descending();
         return postRepository.findAll(PageRequest.of(page, item, sort));
-    }
-
-    public List<String> findAllAuthors() {
-        return postRepository.findAllAuthors();
     }
 
     public Page<Post> findPostsByKeywordAndAuthorAndTagAndPublishedDateDuration(String keyword, String author, List<String> tags, LocalDateTime startDateTime, LocalDateTime endDateTime, String sortingField, String sortingOrder, Integer page, Integer size) {

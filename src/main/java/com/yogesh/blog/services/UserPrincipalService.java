@@ -1,9 +1,9 @@
 package com.yogesh.blog.services;
 
-import com.yogesh.blog.model.Comment;
-import com.yogesh.blog.model.Post;
-import com.yogesh.blog.model.User;
-import com.yogesh.blog.model.UserPrincipal;
+import com.yogesh.blog.models.Comment;
+import com.yogesh.blog.models.Post;
+import com.yogesh.blog.models.User;
+import com.yogesh.blog.models.UserPrincipal;
 import com.yogesh.blog.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,13 +26,13 @@ public class UserPrincipalService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findUserByName(username);
-        user.orElseThrow(() -> new UsernameNotFoundException("This user name is not found"));
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        Optional<User> user = userRepository.findUserByUserName(userName);
+        user.orElseThrow(() -> new UsernameNotFoundException("This user name is not available"));
         return new UserPrincipal(user.get());
     }
 
-    public UserPrincipal getLoggedInUser() {
+    public UserPrincipal getUserPrincipal() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserPrincipal) {
             return (UserPrincipal) principal;
@@ -45,7 +45,7 @@ public class UserPrincipalService implements UserDetailsService {
     }
 
     public Boolean isUserAuthorizedForPostOperation(Post post) {
-        UserPrincipal userPrincipal = getLoggedInUser();
+        UserPrincipal userPrincipal = getUserPrincipal();
         if (Objects.isNull(userPrincipal)) {
             return false;
         } else if (isUserAdmin(userPrincipal)) {
@@ -55,12 +55,24 @@ public class UserPrincipalService implements UserDetailsService {
     }
 
     public Boolean isUserAuthorizedForCommentOperation(Comment comment) {
-        UserPrincipal userPrincipal = getLoggedInUser();
+        UserPrincipal userPrincipal = getUserPrincipal();
+        if (Objects.isNull(userPrincipal)) {
+            return false;
+        } else if (isUserAdmin(userPrincipal)) {
+            return true;
+        } else if (Objects.isNull(comment.getUser())) {
+            return false;
+        }
+        return Objects.equals(userPrincipal.getUser().getId(), comment.getUser().getId());
+    }
+
+    public Boolean isUserAuthorizedForUserOperation(User user) {
+        UserPrincipal userPrincipal = getUserPrincipal();
         if (Objects.isNull(userPrincipal)) {
             return false;
         } else if (isUserAdmin(userPrincipal)) {
             return true;
         }
-        return Objects.equals(userPrincipal.getUser().getId(), comment.getUser().getId());
+        return Objects.equals(userPrincipal.getUser().getId(), user.getId());
     }
 }

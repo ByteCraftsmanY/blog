@@ -1,10 +1,9 @@
-package com.yogesh.blog.model;
+package com.yogesh.blog.models;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +17,8 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<String> userRoles = new ArrayList<>();
-        for (Role role : user.getRoles()) {
-            userRoles.add(role.getName());
-        }
-        return userRoles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        List<Role> userRoles = user.getRoles();
+        return userRoles.stream().map((role) -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
 
     @Override
@@ -32,7 +28,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getName();
+        return user.getUserName();
     }
 
     @Override

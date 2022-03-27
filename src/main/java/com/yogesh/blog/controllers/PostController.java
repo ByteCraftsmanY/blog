@@ -1,23 +1,25 @@
 package com.yogesh.blog.controllers;
 
-import com.yogesh.blog.model.*;
+import com.yogesh.blog.exceptions.EntityNotFoundException;
+import com.yogesh.blog.exceptions.UnauthorizedException;
+import com.yogesh.blog.models.*;
 import com.yogesh.blog.services.PostService;
 import com.yogesh.blog.services.TagService;
 import com.yogesh.blog.services.UserPrincipalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
+@RequestMapping("/posts")
 public class PostController {
     private final PostService postService;
     private final TagService tagService;
@@ -30,24 +32,19 @@ public class PostController {
         this.userPrincipalService = userPrincipalService;
     }
 
-    @GetMapping("/")
-    String getAllPosts(
-            @RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
-            @RequestParam(name = "size", defaultValue = "5", required = false) Integer size,
-            @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
-            @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
-            @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
-            @RequestParam(name = "start-date", defaultValue = "", required = false) String startDate,
-            @RequestParam(name = "end-date", defaultValue = "", required = false) String endDate,
-            @RequestParam(name = "author", defaultValue = "", required = false) String author,
-            @RequestParam(name = "selected-tags", defaultValue = "", required = false) List<String> selectedTags,
-            Model model) {
+    @GetMapping
+    List<Post> getAllPosts(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
+                           @RequestParam(name = "size", defaultValue = "5", required = false) Integer size,
+                           @RequestParam(name = "sort-field", defaultValue = "publishedAt", required = false) String sortingField,
+                           @RequestParam(name = "order", defaultValue = "desc", required = false) String sortingOrder,
+                           @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
+                           @RequestParam(name = "start-date", defaultValue = "", required = false) String startDate,
+                           @RequestParam(name = "end-date", defaultValue = "", required = false) String endDate,
+                           @RequestParam(name = "author", defaultValue = "", required = false) String author,
+                           @RequestParam(name = "selected-tags", defaultValue = "", required = false) List<String> selectedTags) {
         Page<Post> posts;
-        List<String> authors;
-        List<String> tags;
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
-        User activeUser = null;
         boolean isPublishedDateDurationAvailable = !startDate.isEmpty() || !endDate.isEmpty();
 
         if (startDate.isEmpty()) {
@@ -78,95 +75,63 @@ public class PostController {
         } else {
             posts = postService.findAllPost(sortingField, sortingOrder, page, size);
         }
-        authors = postService.findAllAuthors();
-        tags = tagService.findAllTagNames();
-
-        UserPrincipal userPrincipal = userPrincipalService.getLoggedInUser();
-        if (!Objects.isNull(userPrincipal)) {
-            activeUser = userPrincipal.getUser();
-        }
-        model.addAttribute("posts", posts.getContent());
-        model.addAttribute("authors", authors);
-        model.addAttribute("tags", tags);
-        model.addAttribute("page", page);
-        model.addAttribute("size", size);
-        model.addAttribute("sortingField", sortingField);
-        model.addAttribute("sortingOrder", sortingOrder);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("startDate", startDate);
-        model.addAttribute("endDate", endDate);
-        model.addAttribute("author", author);
-        model.addAttribute("selectedTags", selectedTags);
-        model.addAttribute("totalPages", posts.getTotalPages());
-        model.addAttribute("user", activeUser);
-        return "home-page";
+        return posts.getContent();
     }
 
-    @GetMapping("show-post")
-    String getPostById(@RequestParam("id") Integer id, Model model) {
-        Post post = postService.findPostById(id);
-        User user = null;
-        UserPrincipal userPrincipal = userPrincipalService.getLoggedInUser();
-        if (!Objects.isNull(userPrincipal)) {
-            user = userPrincipal.getUser();
-        }
-        model.addAttribute("post", post);
-        model.addAttribute("user", user);
-        return "post";
+    @GetMapping("{id}")
+    Post getPostById(@PathVariable Integer id) {
+        return postService.findPostById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
     }
 
-    @PostMapping("save-post")
-    String savePost(@ModelAttribute("post") Post post, @RequestParam(name = "tag-string") String tagString) {
-        if (post.getCreatedAt() == null) {
-            post.setCreatedAt(LocalDateTime.now());
-            post.setPublishedAt(LocalDateTime.now());
-            post.setUser(Objects.requireNonNull(userPrincipalService.getLoggedInUser()).getUser());
-        } else {
-            post.setUpdatedAt(LocalDateTime.now());
+    @Secured({"ROLE_ADMIN", "ROLE_AUTHOR"})
+    @PostMapping
+    Post savePost(@RequestBody Post post) {
+        List<Tag> postTags = post.getTags();
+        List<String> tagNames = new ArrayList<>();
+        for (Tag tag : postTags) {
+            String name = tag.getName();
+            tagNames.add(name);
         }
-        Set<Tag> tags = new HashSet<>();
-        for (String tagName : tagString.split(" ")) {
-            Tag tag = tagService.findTagByName(tagName);
-            if (Objects.isNull(tag)) {
-                tag = new Tag();
-                tag.setName(tagName);
-                tag.setCreatedAt(LocalDateTime.now());
-            }
-            tags.add(tag);
-        }
-        post.setTags(tags.stream().toList());
+        Set<String> uniqueTagNames = new HashSet<>(tagNames);
+        postTags = uniqueTagNames.stream().map(uniqueTagName -> {
+            Tag tag = tagService.findTagByName(uniqueTagName).orElseGet(Tag::new);
+            tag.setName(uniqueTagName);
+            return tag;
+        }).collect(Collectors.toList());
+        post.setCreatedAt(LocalDateTime.now());
+        post.setPublishedAt(LocalDateTime.now());
+        post.setUser(Objects.requireNonNull(userPrincipalService.getUserPrincipal()).getUser());
+        post.setTags(postTags);
         postService.savePost(post);
-        return "redirect:/";
+        return post;
     }
 
-    @GetMapping("delete-post")
-    String deletePostById(@RequestParam("id") Integer id) {
-        Post post = postService.findPostById(id);
+    @Secured({"ROLE_ADMIN", "ROLE_AUTHOR"})
+    @DeleteMapping("{id}")
+    void deletePostById(@PathVariable Integer id) {
+        Post post = postService.findPostById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
         if (!userPrincipalService.isUserAuthorizedForPostOperation(post)) {
-            return "error";
+            throw new UnauthorizedException("You are not authorized to delete this Post.");
         }
         postService.deletePostById(id);
-        return "redirect:/";
     }
 
-    @GetMapping("edit-post")
-    String getPostForUpdate(@RequestParam("id") Integer id, Model model) {
-        Post post = postService.findPostById(id);
+    @PatchMapping("{id}")
+    public Post updatePostById(@PathVariable Integer id, @RequestBody Map<Object, Object> postFields) {
+        Post post = postService.findPostById(id).orElseThrow(() -> new EntityNotFoundException("Post Not Found."));
         if (!userPrincipalService.isUserAuthorizedForPostOperation(post)) {
-            return "error";
+            throw new UnauthorizedException("You are not authorized to do this task.");
         }
-        StringBuilder tags = new StringBuilder();
-        for (Tag tag : post.getTags()) {
-            tags.append(tag.getName()).append(" ");
-        }
-        model.addAttribute("post", post);
-        model.addAttribute("tags", tags.toString());
-        return "post-form";
-    }
-
-    @GetMapping("/new-post")
-    String showFormForNewPost(Model model) {
-        model.addAttribute("post", new Post());
-        return "post-form";
+//        ToDo: Solve Tag update problem
+        postFields.forEach((key, value) -> {
+            if (key.equals("tags")) {
+                return;
+            }
+            Field field = ReflectionUtils.findField(Post.class, (String) key);
+            Objects.requireNonNull(field).setAccessible(true);
+            ReflectionUtils.setField(field, post, value);
+        });
+        post.setUpdatedAt(LocalDateTime.now());
+        return postService.savePost(post);
     }
 }

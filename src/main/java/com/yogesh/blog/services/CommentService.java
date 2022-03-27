@@ -1,9 +1,11 @@
 package com.yogesh.blog.services;
 
-import com.yogesh.blog.model.Comment;
+import com.yogesh.blog.models.Comment;
 import com.yogesh.blog.repositories.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -14,12 +16,12 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public Comment findCommentById(Integer id) {
-        return commentRepository.findById(id).orElse(null);
+    public Optional<Comment> findCommentById(Integer id) {
+        return commentRepository.findById(id);
     }
 
-    public void saveComment(Comment comment) {
-        commentRepository.save(comment);
+    public Comment saveComment(Comment comment) {
+        return commentRepository.save(comment);
     }
 
     public void deleteCommentById(Integer id) {

@@ -1,5 +1,7 @@
-package com.yogesh.blog.model;
+package com.yogesh.blog.models;
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +18,7 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer id;
 
     @Column(name = "name")
@@ -27,17 +30,22 @@ public class Comment {
     @Column(name = "comment")
     private String content;
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
+    @JsonIncludeProperties(value = {"id"})
     private Post post;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIncludeProperties(value = {"id"})
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private User user;
 
     @Column(name = "created_at")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime updatedAt;
 }
